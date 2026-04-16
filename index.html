@@ -8,10 +8,10 @@
     <!-- Tailwind CSS cho giao diện -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tích hợp các Font chữ đẹp tiếng Việt từ Google Fonts -->
+    <!-- Tích hợp các Font chữ đẹp tiếng Việt & Font Thư pháp/Nghệ thuật từ Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@400;600;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@400;600;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Dancing+Script:wght@700&family=Pacifico&family=Pattaya&family=Patrick+Hand&display=swap" rel="stylesheet">
 
     <!-- Cấu hình và tải MathJax -->
     <script>
@@ -34,11 +34,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* --- BIẾN CSS ĐIỀU KHIỂN FONT CHỮ VÀ SIZE CHỮ --- */
+        /* --- BIẾN CSS ĐIỀU KHIỂN GIAO DIỆN ĐỘNG --- */
         :root {
             --print-font-family: 'Arial', sans-serif;
+            --print-heading-font: inherit; /* Cho font nghệ thuật */
             --print-font-size: 9.5pt;
             --print-line-height: 1.15;
+            --cell-padding: 2px 3px; /* Mật độ hiển thị */
         }
 
         /* --- CẤU HÌNH IN (PRINT MEDIA FORMATTING) --- */
@@ -57,18 +59,27 @@
                 box-shadow: none !important; column-gap: 12px !important; column-fill: auto !important; display: block !important;
             }
             #content-container { width: 100% !important; padding-bottom: 10mm !important; display: block !important; }
-            .topic-group { break-inside: auto; margin-bottom: 4px !important; width: 100% !important; }
-            .theme-header { -webkit-print-color-adjust: exact !important; break-after: avoid; padding: 2px 4px !important; }
+            .topic-group { break-inside: auto; margin-bottom: 6px !important; width: 100% !important; }
+            
+            /* Áp dụng Font Nghệ thuật cho Tiêu đề */
+            .title-print, .theme-header h3 { font-family: var(--print-heading-font) !important; }
+            .theme-header { -webkit-print-color-adjust: exact !important; break-after: avoid; padding: 4px 6px !important; }
+            
             table { width: 100% !important; border-collapse: collapse; table-layout: fixed; page-break-inside: auto; }
             tr { break-inside: avoid; page-break-inside: avoid; page-break-after: auto; }
-            th, td { border: 1px solid #9ca3af !important; padding: 2px 3px !important; word-wrap: break-word; overflow-wrap: break-word; }
+            th, td { 
+                /* Viền mặc định, có thể bị ghi đè bởi #advanced-style */
+                border: 1px solid #9ca3af !important; 
+                padding: var(--cell-padding) !important; 
+                word-wrap: break-word; overflow-wrap: break-word; 
+            }
             .content-cell { font-size: var(--print-font-size) !important; line-height: var(--print-line-height) !important; }
             mjx-container { max-width: 100% !important; overflow-x: hidden !important; }
             mjx-math { white-space: normal !important; }
             mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
             
             .print-header-container { column-span: all !important; -webkit-column-span: all !important; display: block !important; width: 100% !important; margin-bottom: 15px !important; }
-            .title-print { text-align: center; font-size: calc(var(--print-font-size) * 1.8) !important; line-height: 1.3 !important; font-weight: 800 !important; letter-spacing: 0.05em; margin-bottom: 4px; }
+            .title-print { text-align: center; font-size: calc(var(--print-font-size) * 2) !important; line-height: 1.4 !important; font-weight: 800 !important; letter-spacing: 0.02em; margin-bottom: 4px; }
             .student-info-print { font-size: calc(var(--print-font-size) * 1.1) !important; }
             .print-footer {
                 position: fixed; bottom: 0; left: 0; width: 100%; border-top: 1px dashed #9ca3af; padding-top: 4px; padding-bottom: 2px;
@@ -94,13 +105,17 @@
             font-family: var(--print-font-family); column-fill: balance; 
         }
         body.preview-active .content-cell { font-size: var(--print-font-size); line-height: var(--print-line-height); }
-        body.preview-active .topic-group { margin-bottom: 4px; break-inside: avoid; } 
-        body.preview-active th, body.preview-active td { padding: 2px 3px !important; }
+        body.preview-active .topic-group { margin-bottom: 6px; break-inside: avoid; } 
+        body.preview-active th, body.preview-active td { padding: var(--cell-padding) !important; }
         body.preview-active mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
         body.preview-active .print-header-container { display: block; column-span: all; -webkit-column-span: all; width: 100%; margin-bottom: 15px; }
-        body.preview-active .title-print { font-size: calc(var(--print-font-size) * 1.8); line-height: 1.3; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 4px; }
+        
+        /* Font nghệ thuật Preview */
+        body.preview-active .title-print, body.preview-active .theme-header h3 { font-family: var(--print-heading-font) !important; }
+        
+        body.preview-active .title-print { font-size: calc(var(--print-font-size) * 2); line-height: 1.4; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 4px; }
         body.preview-active .student-info-print { font-size: calc(var(--print-font-size) * 1.1); }
-        body.preview-active .theme-header h3, body.preview-active .theme-header span { font-size: calc(var(--print-font-size) * 1.1); padding: 2px 4px; }
+        body.preview-active .theme-header h3, body.preview-active .theme-header span { font-size: calc(var(--print-font-size) * 1.15); padding: 4px 6px; }
         body.preview-active .print-footer { display: flex !important; position: absolute; width: auto; justify-content: center; font-size: calc(var(--print-font-size) * 0.85); border-top: 1px dashed #9ca3af; padding-top: 4px; }
         body.preview-active #watermark-display { display: block !important; z-index: 9999 !important; color: rgba(156, 163, 175, 0.12) !important; opacity: 1 !important; font-size: 80pt !important; }
 
@@ -134,45 +149,26 @@
         }
 
         /* --- CHẾ ĐỘ TRÌNH CHIẾU (PRESENTATION MODE) CSS --- */
-        body.presentation-active { overflow: hidden; } /* Chống cuộn trang web khi đang trình chiếu */
+        body.presentation-active { overflow: hidden; } 
         #presentation-slide { font-family: 'Roboto', sans-serif !important; }
-        
-        /* Ẩn scrollbar của thẻ chứa công thức trong slide nhưng vẫn cho cuộn ngang */
         .slide-math-scroll::-webkit-scrollbar { height: 6px; }
         .slide-math-scroll::-webkit-scrollbar-track { background: transparent; }
         .slide-math-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        
-        /* Font size động cho trình chiếu */
         #slide-formula { font-size: calc(40px * var(--slide-font-scale, 1)); transition: font-size 0.2s ease; }
         #slide-example { font-size: calc(35px * var(--slide-font-scale, 1)); transition: font-size 0.2s ease; }
         @media (min-width: 768px) {
             #slide-formula { font-size: calc(60px * var(--slide-font-scale, 1)); }
             #slide-example { font-size: calc(45px * var(--slide-font-scale, 1)); }
         }
-
-        /* --- CHẾ ĐỘ TỐI KHI TRÌNH CHIẾU (DARK MODE PRESENTATION) --- */
-        body.presentation-dark #presentation-slide {
-            background-color: #0f172a !important; /* Slate-900 */
-        }
-        body.presentation-dark #slide-topic-text,
-        body.presentation-dark #slide-name,
-        body.presentation-dark .text-slate-800,
-        body.presentation-dark .text-slate-700,
-        body.presentation-dark .text-slate-500,
-        body.presentation-dark .text-slate-400 {
-            color: #f8fafc !important; /* Chữ trắng sáng */
-        }
-        body.presentation-dark .bg-slate-50 {
-            background-color: #1e293b !important; /* Slate-800 cho khung viền */
-            border-color: #334155 !important;
-        }
-        /* Ép công thức Toán (MathJax) sang màu Vàng */
-        body.presentation-dark #presentation-slide mjx-container {
-            color: #fde047 !important; /* Yellow-300 */
-        }
+        body.presentation-dark #presentation-slide { background-color: #0f172a !important; }
+        body.presentation-dark #slide-topic-text, body.presentation-dark #slide-name, body.presentation-dark .text-slate-800, body.presentation-dark .text-slate-700, body.presentation-dark .text-slate-500, body.presentation-dark .text-slate-400 { color: #f8fafc !important; }
+        body.presentation-dark .bg-slate-50 { background-color: #1e293b !important; border-color: #334155 !important; }
+        body.presentation-dark #presentation-slide mjx-container { color: #fde047 !important; }
     </style>
 
     <style id="dynamic-print-style"></style>
+    <!-- CSS CHÈN KIỂU VIỀN BẢNG ĐỘNG -->
+    <style id="advanced-border-style"></style>
 </head>
 <body class="bg-blue-50 text-gray-800 font-sans min-h-screen">
 
@@ -227,12 +223,10 @@
             <div class="mt-6 flex flex-wrap justify-center gap-3">
                 <button onclick="loadSampleData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-full text-sm shadow-sm transition">Tải dữ liệu mẫu</button>
                 
-                <!-- NÚT SỬA LỖI VĂN BẢN -->
                 <button id="btn-edit-mode" onclick="toggleEditMode()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full shadow-md text-sm transition flex items-center">
                     ✏️ Bật sửa lỗi
                 </button>
 
-                <!-- NÚT LƯU EXCEL MỚI THÊM -->
                 <button onclick="exportToExcel()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-full shadow-md text-sm transition flex items-center" title="Lưu lại file Excel sau khi đã chỉnh sửa">
                     💾 Xuất Excel
                 </button>
@@ -246,85 +240,62 @@
                 </button>
             </div>
             
-            <!-- --- MENU TẠO PROMPT THÔNG MINH --- -->
-            <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm">
-                <div class="flex justify-between items-center cursor-pointer select-none" onclick="togglePanel('panel-prompt', 'icon-prompt')">
-                    <h3 class="text-sm font-bold text-indigo-700 flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 112 0v1a1 1 0 11-2 0zM13.536 14.95a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0zM10 8a2 2 0 100 4 2 2 0 000-4z"></path></svg>
-                        Menu Tạo Prompt Thông Minh (Dành cho AI)
-                    </h3>
-                    <svg id="icon-prompt" class="w-5 h-5 text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                </div>
-                <div id="panel-prompt" class="mt-3 hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                        <div>
-                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Môn học:</label>
-                            <select id="prompt-subject" class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-                                <option value="Toán học">Toán học</option>
-                                <option value="Vật lý">Vật lý</option>
-                                <option value="Hóa học">Hóa học</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Khối lớp:</label>
-                            <select id="prompt-grade" class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-                                <option value="Lớp 10">Lớp 10</option>
-                                <option value="Lớp 11">Lớp 11</option>
-                                <option value="Lớp 12">Lớp 12</option>
-                                <option value="Ôn thi THPT Quốc gia">Ôn thi THPT Quốc gia</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Chủ đề cần sinh:</label>
-                            <input type="text" id="prompt-topic" placeholder="Ví dụ: Đạo hàm, Hình học không gian..." class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400">
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <button onclick="generateAdvancedPrompt()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition shadow-md flex-1">
-                            ✨ Tạo Prompt Chuyên Gia
-                        </button>
-                        <button id="copy-advanced-btn" onclick="copyAdvancedPrompt()" class="hidden bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-6 rounded-lg text-sm transition shadow-sm">
-                            📋 Copy Prompt
-                        </button>
-                    </div>
-                    <div id="advanced-prompt-result" class="hidden mt-4 bg-white p-3 rounded-lg border border-indigo-100 text-[11px] text-gray-700 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto shadow-inner"></div>
-                </div>
-            </div>
-
             <!-- --- BỘ ĐIỀU KHIỂN GIAO DIỆN & FONT CHỮ --- -->
             <div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
                 <div class="flex justify-between items-center cursor-pointer select-none border-b pb-2 mb-3" onclick="togglePanel('panel-display', 'icon-display')">
-                    <h3 class="text-sm font-bold text-gray-700">⚙️ Thiết lập hiển thị (Font, Màu, Cỡ chữ)</h3>
+                    <h3 class="text-sm font-bold text-gray-700">⚙️ Thiết lập hiển thị & Thẩm mỹ (Font, Màu, Cỡ chữ)</h3>
                     <svg id="icon-display" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                 </div>
-                <div id="panel-display" class="flex flex-wrap gap-4 items-end">
+                <div id="panel-display" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                     
-                    <!-- Font chữ -->
+                    <!-- Font Nội Dung -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">🔤 Font chữ tiếng Việt:</label>
-                        <select id="font-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white min-w-[150px]" onchange="applyFontSettings()">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">🔤 Font Nội dung (Dễ đọc):</label>
+                        <select id="font-select" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyAdvancedSettings()">
                             <option value="'Arial', sans-serif">1. Arial (Cơ bản)</option>
                             <option value="'Times New Roman', serif">2. Times New Roman (Học thuật)</option>
                             <option value="'Roboto', sans-serif">3. Roboto (Hiện đại)</option>
-                            <option value="'Open Sans', sans-serif">4. Open Sans (Dễ nhìn)</option>
+                            <option value="'Open Sans', sans-serif">4. Open Sans (Nhẹ nhàng)</option>
                             <option value="'Lora', serif">5. Lora (Có chân thanh lịch)</option>
                             <option value="'Quicksand', sans-serif">6. Quicksand (Bo tròn dễ thương)</option>
+                        </select>
+                    </div>
+
+                    <!-- Font Tiêu Đề (Thư pháp) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-indigo-600 mb-1">✒️ Font Tiêu đề (Thư pháp/Art):</label>
+                        <select id="heading-font-select" class="w-full border border-indigo-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400 bg-indigo-50" onchange="applyAdvancedSettings()">
+                            <option value="default">Cùng font với nội dung</option>
+                            <option value="'Pattaya', sans-serif">🖊️ Thư Pháp Hiện Đại (Pattaya)</option>
+                            <option value="'Dancing Script', cursive">✍️ Viết tay uốn lượn (Dancing)</option>
+                            <option value="'Pacifico', cursive">🎨 Nét bút lông (Pacifico)</option>
+                            <option value="'Patrick Hand', cursive">🖍️ Nét phấn vẽ (Patrick)</option>
                         </select>
                     </div>
 
                     <!-- Size chữ -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">A± Cỡ chữ (Hiện tại: <span id="font-size-label">9.5pt</span>):</label>
-                        <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden h-[34px]">
-                            <button onclick="changeBaseFontSize(-0.5)" class="px-3 hover:bg-gray-100 text-gray-700 font-bold border-r border-gray-200 h-full transition">-</button>
-                            <button onclick="changeBaseFontSize(0.5)" class="px-3 hover:bg-gray-100 text-gray-700 font-bold h-full transition">+</button>
+                        <div class="flex items-center w-full bg-white border border-gray-300 rounded-lg overflow-hidden h-[34px]">
+                            <button onclick="changeBaseFontSize(-0.5)" class="w-1/2 hover:bg-gray-100 text-gray-700 font-bold border-r border-gray-200 h-full transition">-</button>
+                            <button onclick="changeBaseFontSize(0.5)" class="w-1/2 hover:bg-gray-100 text-gray-700 font-bold h-full transition">+</button>
                         </div>
+                    </div>
+
+                    <!-- Khoảng cách (Mật độ) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-teal-600 mb-1">📏 Khoảng cách (Mật độ):</label>
+                        <select id="density-select" class="w-full border border-teal-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-teal-400 bg-teal-50" onchange="applyAdvancedSettings()">
+                            <option value="compact">Siêu khít (Tiết kiệm giấy)</option>
+                            <option value="normal" selected>Vừa phải (Tiêu chuẩn)</option>
+                            <option value="spacious">Rộng rãi (Thoáng đãng)</option>
+                        </select>
                     </div>
 
                     <!-- Chủ đề màu -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">🎨 Màu sắc:</label>
-                        <select id="theme-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
+                        <select id="theme-select" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
                             <optgroup label="Cơ bản">
                                 <option value="blue">Xanh Pastel (Chuẩn)</option>
                                 <option value="colorful">Đa sắc (Phân biệt mảng)</option>
@@ -344,13 +315,18 @@
                                 <option value="candy">🍭 Kẹo Ngọt Đa Sắc</option>
                                 <option value="dark-modern">🌌 Đen Hiện Đại (Tốn mực)</option>
                             </optgroup>
+                            <optgroup label="Hoạt Hình / Anime">
+                                <option value="doraemon">🤖 Mèo Máy Doraemon</option>
+                                <option value="songoku">🐉 Siêu Xayda Songoku</option>
+                                <option value="conan">🕵️ Thám Tử Conan</option>
+                            </optgroup>
                         </select>
                     </div>
 
                     <!-- Bộ Icon -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">✨ Bộ Icon Chủ Đề:</label>
-                        <select id="icon-set-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
+                        <select id="icon-set-select" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
                             <option value="default">Biểu tượng hỗn hợp (Mặc định)</option>
                             <option value="math">📐 Thuần Toán Học</option>
                             <option value="physics">⚡ Thuần Vật Lý</option>
@@ -362,13 +338,27 @@
                             <option value="magic">🔮 Phép Thuật</option>
                             <option value="minimal">🔹 Hình Khối Tối Giản</option>
                             <option value="faces">😎 Cảm Xúc Vui Nhộn</option>
+                            <option value="doraemon">🤖 Doraemon (Bảo bối)</option>
+                            <option value="songoku">🐉 Songoku (Ngọc Rồng)</option>
+                            <option value="conan">🕵️ Conan (Thám tử)</option>
+                        </select>
+                    </div>
+
+                    <!-- Kiểu viền bảng -->
+                    <div>
+                        <label class="block text-xs font-semibold text-fuchsia-600 mb-1">🔲 Kiểu viền bảng:</label>
+                        <select id="border-style-select" class="w-full border border-fuchsia-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-fuchsia-400 bg-fuchsia-50" onchange="applyAdvancedSettings()">
+                            <option value="solid">Kẻ ô vuông (Cổ điển)</option>
+                            <option value="rounded">Bo góc mềm mại (Hiện đại)</option>
+                            <option value="dashed">Viền đứt nét (Ghi chú)</option>
+                            <option value="minimal">Tối giản (Bỏ viền dọc)</option>
                         </select>
                     </div>
 
                     <!-- Hướng giấy -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">📄 Giấy / Số cột:</label>
-                        <select id="orientation-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyOrientation()">
+                        <select id="orientation-select" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyAdvancedSettings()">
                             <option value="portrait-1" selected>Dọc (1 cột dễ đọc)</option>
                             <option value="portrait">Dọc (2 cột siêu khít)</option>
                             <option value="landscape">Ngang (2 cột rộng rãi)</option>
@@ -411,10 +401,10 @@
                         </div>
                     </div>
                     
-                    <!-- Hướng dẫn in CỰC KỲ QUAN TRỌNG giúp tránh mất lề -->
+                    <!-- Hướng dẫn in -->
                     <div class="mt-4 text-[13px] text-blue-800 bg-blue-50 p-3 rounded-lg border border-blue-200 leading-relaxed shadow-inner">
                         <span class="font-bold text-red-600 text-sm">🚨 QUAN TRỌNG ĐỂ IN KHÔNG BỊ MẤT LỀ:</span><br>
-                        1. <b>Lề (Margins):</b> Ở cửa sổ in của trình duyệt, BẮT BUỘC chọn <b>Mặc định (Default)</b>. <span class="text-red-500 font-medium">Tuyệt đối không chọn "None" (Không có)</span> vì sẽ làm chữ dính sát mép giấy rất mất thẩm mỹ!<br>
+                        1. <b>Lề (Margins):</b> Ở cửa sổ in của trình duyệt, BẮT BUỘC chọn <b>Mặc định (Default)</b>.<br>
                         2. <b>Đồ họa nền (Background graphics):</b> Tích chọn để thấy màu sắc của các khối kiến thức.<br>
                         3. <b>Số trang:</b> Tích chọn <b>Tiêu đề và chân trang (Headers and footers)</b> để tự động đánh số trang ở góc tờ giấy.
                     </div>
@@ -565,19 +555,76 @@
         function togglePanel(panelId, iconId) {
             const panel = document.getElementById(panelId);
             const icon = document.getElementById(iconId);
-            if (panel.classList.contains('hidden')) {
-                panel.classList.remove('hidden');
-                icon.style.transform = 'rotate(0deg)';
-            } else {
-                panel.classList.add('hidden');
-                icon.style.transform = 'rotate(180deg)';
+            if (panel && icon) {
+                if (panel.classList.contains('hidden')) {
+                    panel.classList.remove('hidden');
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    panel.classList.add('hidden');
+                    icon.style.transform = 'rotate(180deg)';
+                }
             }
         }
 
-        // --- CẬP NHẬT FONT VÀ SIZE CHỮ ---
-        function applyFontSettings() {
+        // --- CẬP NHẬT CÁC CÀI ĐẶT HIỂN THỊ NÂNG CAO (GỘP CHUNG) ---
+        function applyAdvancedSettings() {
+            // 1. Font chữ nội dung cơ bản
             const fontVal = document.getElementById('font-select').value;
             document.documentElement.style.setProperty('--print-font-family', fontVal);
+            
+            // 2. Font chữ tiêu đề (Nghệ thuật/Thư pháp)
+            const headingFontVal = document.getElementById('heading-font-select').value;
+            if (headingFontVal === 'default') {
+                document.documentElement.style.setProperty('--print-heading-font', fontVal); // Theo font nội dung
+            } else {
+                document.documentElement.style.setProperty('--print-heading-font', headingFontVal);
+            }
+
+            // 3. Mật độ khoảng cách (Dãn dòng & Lề ô)
+            const density = document.getElementById('density-select').value;
+            if (density === 'compact') {
+                document.documentElement.style.setProperty('--cell-padding', '2px 3px');
+                document.documentElement.style.setProperty('--print-line-height', '1.15');
+            } else if (density === 'spacious') {
+                document.documentElement.style.setProperty('--cell-padding', '8px 10px');
+                document.documentElement.style.setProperty('--print-line-height', '1.5');
+            } else {
+                // Normal
+                document.documentElement.style.setProperty('--cell-padding', '4px 6px');
+                document.documentElement.style.setProperty('--print-line-height', '1.3');
+            }
+
+            // 4. Kiểu viền bảng (CSS động để ghi đè Tailwind)
+            const borderStyle = document.getElementById('border-style-select').value;
+            const borderStyleEl = document.getElementById('advanced-border-style');
+            let borderCss = '';
+            
+            if (borderStyle === 'dashed') {
+                borderCss = `
+                    #print-area table { border: 1px solid #9ca3af !important; border-collapse: collapse !important; }
+                    #print-area th, #print-area td { border: 1px dashed #9ca3af !important; border-left: none !important; border-right: none !important; }
+                `;
+            } else if (borderStyle === 'minimal') {
+                borderCss = `
+                    #print-area table { border: none !important; border-collapse: collapse !important; }
+                    #print-area th, #print-area td { border: none !important; border-bottom: 1px solid #e5e7eb !important; }
+                `;
+            } else if (borderStyle === 'rounded') {
+                borderCss = `
+                    #print-area table { border-collapse: separate !important; border-spacing: 0 !important; border: 2px solid #9ca3af !important; border-radius: 8px !important; overflow: hidden !important; }
+                    #print-area th, #print-area td { border: 1px solid #d1d5db !important; }
+                `;
+            } else {
+                // Solid (Mặc định)
+                borderCss = `
+                    #print-area table { border-collapse: collapse !important; }
+                    #print-area th, #print-area td { border: 1px solid #9ca3af !important; }
+                `;
+            }
+            borderStyleEl.innerHTML = `@media print { ${borderCss} } body.preview-active ${borderCss}`;
+
+            // 5. Cập nhật hướng giấy
+            applyOrientation();
         }
 
         function changeBaseFontSize(delta) {
@@ -633,8 +680,6 @@
             }
         }
 
-        updatePrintInfo(); // Khởi tạo lần đầu
-
         // --- BỘ TỪ ĐIỂN ICON ---
         const iconDictionaries = {
             default: { keywords: { 'đạo hàm': '🚀', 'lượng giác': '🎡', 'tích phân': '🎢', 'logarit': '🍄', 'hàm số': '📈', 'hình': '🧊' }, fallback: ['🦄','🌸','🍀','🌟','🍓','🧸','🎈','🌻','🎀','🪄','🐧','🐬','🍩'] },
@@ -647,7 +692,10 @@
             nature: { fallback: ['🌿', '🍄', '🍁', '🌺', '🌲', '🌴', '🌵', '🌱', '🌼', '🌻', '🌸', '☘️'] },
             magic: { fallback: ['🔮', '🪄', '🌟', '✨', '🧙', '🧚', '🧞', '🧜', '🧝', '🧿', '🦄', '🦇'] },
             minimal: { fallback: ['🔹', '🔸', '▪️', '▫️', '💠', '🔘', '🔻', '🔺', '⬛', '⬜', '⚪', '⚫'] },
-            faces: { fallback: ['😀','😎','🤓','🥳','🤔','🤩','😜','🤗','🫡','🤫','🤠','😇'] }
+            faces: { fallback: ['😀','😎','🤓','🥳','🤔','🤩','😜','🤗','🫡','🤫','🤠','😇'] },
+            doraemon: { fallback: ['🤖', '🚁', '🚪', '🐱', '🔔', '🛸', '🍘', '⏱️'] },
+            songoku: { fallback: ['🐒', '🐉', '☁️', '💥', '🥋', '☄️', '🟠', '💪'] },
+            conan: { fallback: ['🕵️', '👓', '🔍', '⚽', '🛹', '💊', '⌚', '🎀'] }
         };
 
         function getTopicIcon(topic) {
@@ -922,6 +970,12 @@
                     case 'dark-modern':
                         headerClass += "bg-gray-800 print:bg-gray-800 text-cyan-300 border-gray-700"; textThemeClass = "text-gray-800 print:text-gray-900";
                         groupDiv.className = 'topic-group bg-white rounded-lg shadow-sm border-2 border-gray-800 overflow-hidden print:mb-1'; break;
+                    case 'doraemon':
+                        headerClass += "bg-blue-200 print:bg-blue-200 text-blue-900 border-red-400 border-b-2"; textThemeClass = "text-blue-900 print:text-blue-900"; break;
+                    case 'songoku':
+                        headerClass += "bg-orange-200 print:bg-orange-200 text-orange-900 border-blue-500 border-b-2"; textThemeClass = "text-orange-900 print:text-orange-900"; break;
+                    case 'conan':
+                        headerClass += "bg-slate-300 print:bg-slate-300 text-slate-900 border-red-500 border-b-2"; textThemeClass = "text-slate-900 print:text-slate-900"; break;
                     default: 
                         headerClass += "bg-blue-100 print:bg-blue-100 text-blue-900"; textThemeClass = "text-blue-900 print:text-blue-900"; break;
                 }
@@ -1074,10 +1128,26 @@ QUY TẮC NỘI DUNG (QUAN TRỌNG):
             });
         }
         
-        // Khởi tạo
-        applyFontSettings();
-        applyOrientation();
-        document.getElementById('icon-prompt').style.transform = 'rotate(180deg)';
+        // Khởi tạo an toàn (Phòng tránh lỗi DOM chưa tải kịp)
+        document.addEventListener('DOMContentLoaded', () => {
+            if(document.getElementById('font-select')) {
+                applyAdvancedSettings();
+            }
+            updatePrintInfo();
+            const iconPromptEl = document.getElementById('icon-prompt');
+            if (iconPromptEl) {
+                iconPromptEl.style.transform = 'rotate(180deg)';
+            }
+        });
+
+        // Hỗ trợ trường hợp kịch bản được nạp muộn (Tránh lỗi TypeError style null)
+        if (document.readyState === "complete" || document.readyState === "interactive") {
+            setTimeout(() => {
+                if(document.getElementById('font-select')) applyAdvancedSettings();
+                const iconPromptEl = document.getElementById('icon-prompt');
+                if (iconPromptEl) iconPromptEl.style.transform = 'rotate(180deg)';
+            }, 100);
+        }
 
         // ==========================================
         // CÁC HÀM XỬ LÝ CHẾ ĐỘ TRÌNH CHIẾU 16:9
