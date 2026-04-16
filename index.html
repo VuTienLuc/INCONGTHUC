@@ -41,59 +41,62 @@
             --print-line-height: 1.15;
         }
 
-        /* --- SỬA LỖI IN BỊ CẮT TRANG --- */
+        /* --- SỬA LỖI IN BỊ CẮT TRANG VÀ DÀN TRANG SANG PHẢI --- */
         @media print {
             @page {
                 size: A4;
-                /* Lề in chuẩn: Trên 1.8cm, Phải 1.5cm, Dưới 2.0cm, Trái 1.5cm */
-                margin: 18mm 15mm 20mm 15mm; 
+                /* Lề in chuẩn: 1.5cm đều các cạnh cho cân đối hoàn toàn */
+                margin: 15mm; 
             }
             
-            /* LOẠI BỎ TẤT CẢ FLEXBOX GÂY LỖI CẮT TRANG KHI IN CỦA TRÌNH DUYỆT */
-            html, body, #print-area-wrapper, #print-area, #content-container {
+            /* Ép buộc giãn 100% toàn bộ vùng chứa, ghi đè giới hạn của thư viện UI */
+            html, body {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 display: block !important;
-                height: auto !important;
-                min-height: auto !important;
-                max-height: none !important;
-                overflow: visible !important;
-                position: static !important;
                 background: white !important;
-            }
-
-            body {
                 color: black;
                 font-family: var(--print-font-family) !important;
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
+                box-sizing: border-box !important;
             }
             
-            .no-print { display: none !important; }
-            #preview-controls { display: none !important; }
+            .no-print, #preview-controls { display: none !important; }
             
             #print-area-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
                 padding: 0 !important;
                 margin: 0 !important;
-                width: 100% !important;
+                display: block !important;
             }
 
             #print-area {
                 width: 100% !important;
+                max-width: 100% !important; /* Sửa lỗi lệch sang trái do class container */
                 padding: 0 !important;
                 margin: 0 !important;
                 transform: none !important; 
                 box-shadow: none !important;
-                column-gap: 10px;
-                /* BẮT BUỘC: Cho phép cột tràn sang trang tiếp theo */
+                column-gap: 12px !important; /* Khoảng cách 2 cột */
                 column-fill: auto !important; 
+                display: block !important;
             }
 
             #content-container {
-                padding-bottom: 10mm !important; /* Tạo khoảng trống tránh dính vào Footer ở cuối trang */
+                width: 100% !important;
+                max-width: 100% !important;
+                padding-bottom: 10mm !important; /* Khoảng trống chân trang */
+                display: block !important;
             }
 
             .topic-group {
                 break-inside: auto; 
                 margin-bottom: 4px !important;
+                width: 100% !important;
             }
             
             .theme-header {
@@ -104,15 +107,16 @@
             }
             
             table {
-                width: 100%;
+                width: 100% !important;
+                max-width: 100% !important;
                 border-collapse: collapse;
                 margin-bottom: 0;
                 table-layout: fixed;
-                page-break-inside: auto; /* Cho phép bảng ngắt trang */
+                page-break-inside: auto;
             }
             tr {
                 break-inside: avoid; 
-                page-break-inside: avoid; /* Ngăn hàng bị cắt nửa chữ */
+                page-break-inside: avoid; 
                 page-break-after: auto;
             }
             th, td {
@@ -128,12 +132,12 @@
                 line-height: var(--print-line-height) !important;
             }
 
-            /* Fix công thức Toán tràn lề */
+            /* Fix công thức Toán */
             mjx-container { max-width: 100% !important; overflow-x: hidden !important; }
             mjx-math { white-space: normal !important; }
             mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
             
-            /* Header & Footer trong bản in */
+            /* Header & Footer */
             .title-print, .student-info-print {
                 column-span: all !important;
                 -webkit-column-span: all !important;
@@ -169,14 +173,14 @@
                 color: #4b5563;
                 display: flex !important;
                 justify-content: center; 
-                background: white !important; /* Tránh đè lên chữ */
+                background: white !important; 
                 -webkit-print-color-adjust: exact;
                 z-index: 100;
             }
             
             #watermark-display { display: block; }
 
-            /* Fix QR in print: canvas hay bị lỗi trắng ở Chrome khi in, thay bằng thẻ img */
+            /* Ẩn canvas mã QR, hiện ảnh img thay thế để không lỗi hiển thị */
             .qr-code-container canvas { display: none !important; }
             .qr-code-container img { display: block !important; }
         }
@@ -192,30 +196,27 @@
         body.preview-active #print-area-wrapper {
             padding-top: 80px; 
             padding-bottom: 60px;
-            display: flex; /* Flexbox cho màn hình để căn giữa trang giấy */
+            display: flex; 
             justify-content: center;
             width: 100%;
             min-height: 100vh;
         }
 
         body.preview-active #print-area {
-            /* width và padding sẽ được ghi đè tự động bởi JS (Hàm applyOrientation) */
             margin: 0;
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.4); 
-            column-gap: 10px;
+            column-gap: 12px;
             position: relative;
             transform: scale(var(--preview-zoom, 1));
             transform-origin: top center;
             transition: transform 0.15s ease-out;
             font-family: var(--print-font-family);
-            /* Trên màn hình, các cột tự động cân bằng chiều cao */
             column-fill: balance; 
         }
         
-        /* Đồng bộ CSS Xem trước với CSS in thật */
         body.preview-active .content-cell { font-size: var(--print-font-size); line-height: var(--print-line-height); }
-        body.preview-active .topic-group { margin-bottom: 4px; break-inside: avoid; } /* Tránh gãy thẻ trên màn hình */
+        body.preview-active .topic-group { margin-bottom: 4px; break-inside: avoid; } 
         body.preview-active th, body.preview-active td { padding: 2px 3px !important; }
         body.preview-active mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
         body.preview-active .title-print, body.preview-active .student-info-print { 
@@ -231,7 +232,6 @@
         body.preview-active .print-footer {
             display: flex !important;
             position: absolute;
-            /* Bottom và vị trí sẽ được điều chỉnh bởi JS applyOrientation */
             width: auto;
             justify-content: center;
             font-size: calc(var(--print-font-size) * 0.85);
@@ -272,7 +272,6 @@
         }
     </style>
 
-    <!-- Thẻ Style động dùng để ép hướng giấy và số cột từ JS -->
     <style id="dynamic-print-style"></style>
 </head>
 <body class="bg-blue-50 text-gray-800 font-sans min-h-screen">
@@ -384,7 +383,7 @@
                 </div>
                 <div id="panel-display" class="flex flex-wrap gap-4 items-end">
                     
-                    <!-- Font chữ (Mới) -->
+                    <!-- Font chữ -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">🔤 Font chữ tiếng Việt:</label>
                         <select id="font-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white min-w-[150px]" onchange="applyFontSettings()">
@@ -397,7 +396,7 @@
                         </select>
                     </div>
 
-                    <!-- Size chữ (Mới) -->
+                    <!-- Size chữ -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">A± Cỡ chữ (Hiện tại: <span id="font-size-label">9.5pt</span>):</label>
                         <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden h-[34px]">
@@ -410,11 +409,43 @@
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">🎨 Màu sắc:</label>
                         <select id="theme-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
-                            <option value="blue">Xanh Pastel (Chuẩn)</option>
-                            <option value="colorful">Đa sắc (Phân biệt mảng)</option>
-                            <option value="mono">Đen trắng (Tiết kiệm mực)</option>
-                            <option value="pink">Hồng Sakura</option>
-                            <option value="ocean">Gradient Biển</option>
+                            <optgroup label="Cơ bản">
+                                <option value="blue">Xanh Pastel (Chuẩn)</option>
+                                <option value="colorful">Đa sắc (Phân biệt mảng)</option>
+                                <option value="mono">Đen trắng (Tiết kiệm mực)</option>
+                                <option value="pink">Hồng Sakura</option>
+                                <option value="ocean">Gradient Biển</option>
+                            </optgroup>
+                            <optgroup label="Học sinh Đáng yêu & Hiện đại">
+                                <option value="sunflower">🌻 Vàng Hướng Dương</option>
+                                <option value="matcha">🍵 Xanh Matcha</option>
+                                <option value="lavender">💜 Tím Lavender</option>
+                                <option value="macaron">🍬 Kẹo Macaron (Hồng/Xanh)</option>
+                                <option value="mint">🍃 Bạc Hà Tươi</option>
+                                <option value="cherry">🍒 Đỏ Cherry</option>
+                                <option value="coffee">☕ Cà Phê Sữa</option>
+                                <option value="autumn">🍁 Sắc Thu (Cam Nâu)</option>
+                                <option value="candy">🍭 Kẹo Ngọt Đa Sắc</option>
+                                <option value="dark-modern">🌌 Đen Hiện Đại (Tốn mực)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Bộ Icon (Mới) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">✨ Bộ Icon Chủ Đề:</label>
+                        <select id="icon-set-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
+                            <option value="default">Biểu tượng hỗn hợp (Mặc định)</option>
+                            <option value="math">📐 Thuần Toán Học</option>
+                            <option value="physics">⚡ Thuần Vật Lý</option>
+                            <option value="chemistry">🧪 Thuần Hóa Học</option>
+                            <option value="cute_animals">🐼 Động Vật Cute</option>
+                            <option value="food">🍩 Đồ Ăn Ngon</option>
+                            <option value="space">🚀 Vũ Trụ Kỳ Bí</option>
+                            <option value="nature">🌿 Thiên Nhiên Xanh</option>
+                            <option value="magic">🔮 Phép Thuật</option>
+                            <option value="minimal">🔹 Hình Khối Tối Giản</option>
+                            <option value="faces">😎 Cảm Xúc Vui Nhộn</option>
                         </select>
                     </div>
 
@@ -430,7 +461,7 @@
                 </div>
             </div>
 
-            <!-- Cài đặt tài liệu in (Tên, Lớp, Footer) -->
+            <!-- Cài đặt tài liệu in -->
             <div class="mt-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <div class="flex justify-between items-center cursor-pointer select-none border-b pb-2 mb-3" onclick="togglePanel('panel-info', 'icon-info')">
                     <h3 class="text-sm font-bold text-gray-700">📝 Tùy chỉnh thông tin phiếu in</h3>
@@ -496,7 +527,6 @@
                 <span id="display-class" class="inline-block border-b border-dashed border-gray-400 w-24 text-left text-blue-800"></span>
             </div>
             
-            <!-- Bỏ class column-count ở phần div container, chuyển việc chia cột sang CSS động của #print-area -->
             <div id="content-container" class="space-y-4 print:space-y-0 print:pb-10">
                 <div class="text-center text-gray-400 py-10 no-print italic content-cell">
                     Chưa có dữ liệu...
@@ -601,18 +631,38 @@
 
         updatePrintInfo(); // Khởi tạo lần đầu
 
+        // --- BỘ TỪ ĐIỂN ICON MỚI ---
+        const iconDictionaries = {
+            default: { keywords: { 'đạo hàm': '🚀', 'lượng giác': '🎡', 'tích phân': '🎢', 'logarit': '🍄', 'hàm số': '📈', 'hình': '🧊' }, fallback: ['🦄','🌸','🍀','🌟','🍓','🧸','🎈','🌻','🎀','🪄','🐧','🐬','🍩'] },
+            math: { fallback: ['📐', '📏', '🧮', '✖️', '➗', '➕', '➖', '💯', '🔢', '📊', '📈', '📉'] },
+            physics: { fallback: ['⚛️', '🧲', '🚀', '⚡', '🌌', '🔋', '💡', '🔭', '📡', '⚙️', '🛰️', '🪐'] },
+            chemistry: { fallback: ['🧪', '🧬', '🔬', '🧫', '⚗️', '🌡️', '💊', '☢️', '☣️', '💧', '🔥', '🧊'] },
+            cute_animals: { fallback: ['🐱', '🐶', '🐰', '🐼', '🐸', '🐯', '🦁', '🐮', '🐷', '🦊', '🐨', '🐥'] },
+            food: { fallback: ['🍔', '🍕', '🍦', '🍓', '🍩', '🍰', '🍫', '🍬', '🍭', '🍉', '🍿', '🍟'] },
+            space: { fallback: ['🪐', '👽', '🛰️', '🌠', '🌙', '☀️', '🌎', '☄️', '👨‍🚀', '🛸', '🌌', '🚀'] },
+            nature: { fallback: ['🌿', '🍄', '🍁', '🌺', '🌲', '🌴', '🌵', '🌱', '🌼', '🌻', '🌸', '☘️'] },
+            magic: { fallback: ['🔮', '🪄', '🌟', '✨', '🧙', '🧚', '🧞', '🧜', '🧝', '🧿', '🦄', '🦇'] },
+            minimal: { fallback: ['🔹', '🔸', '▪️', '▫️', '💠', '🔘', '🔻', '🔺', '⬛', '⬜', '⚪', '⚫'] },
+            faces: { fallback: ['😀','😎','🤓','🥳','🤔','🤩','😜','🤗','🫡','🤫','🤠','😇'] }
+        };
+
         function getTopicIcon(topic) {
+            const setKey = document.getElementById('icon-set-select') ? document.getElementById('icon-set-select').value : 'default';
+            const iconSet = iconDictionaries[setKey] || iconDictionaries['default'];
             const t = topic.toLowerCase();
-            if (t.includes('đạo hàm')) return '🚀';
-            if (t.includes('lượng giác')) return '🎡';
-            if (t.includes('tích phân') || t.includes('nguyên hàm')) return '🎢';
-            if (t.includes('logarit') || t.includes('mũ')) return '🍄';
-            if (t.includes('hàm số')) return '📈';
-            if (t.includes('hình')) return '🧊';
-            const cuteIcons = ['🦄','🌸','🍀','🌟','🍓','🧸','🎈','🌻','🎀','🪄','🐧','🐬','🍩'];
+
+            // Ưu tiên tìm theo từ khóa nếu bộ icon có hỗ trợ (như bộ default)
+            if (iconSet.keywords) {
+                for (const [key, icon] of Object.entries(iconSet.keywords)) {
+                    if (t.includes(key)) return icon;
+                }
+            }
+
+            // Nếu không khớp từ khóa, lấy ngẫu nhiên một icon trong mảng fallback dựa trên mã băm của tên chủ đề
+            const fallbackArray = iconSet.fallback;
             let hash = 0;
             for (let i = 0; i < topic.length; i++) hash = topic.charCodeAt(i) + ((hash << 5) - hash);
-            return cuteIcons[Math.abs(hash) % cuteIcons.length];
+            return fallbackArray[Math.abs(hash) % fallbackArray.length];
         }
 
         const colorPalettes = [
@@ -621,6 +671,14 @@
             { bg: 'bg-purple-100 print:bg-purple-100', text: 'text-purple-800 print:text-purple-900' },
             { bg: 'bg-orange-100 print:bg-orange-100', text: 'text-orange-800 print:text-orange-900' },
             { bg: 'bg-teal-100 print:bg-teal-100', text: 'text-teal-800 print:text-teal-900' }
+        ];
+        
+        const candyPalettes = [
+            { bg: 'bg-pink-100 print:bg-pink-100', text: 'text-pink-600 print:text-pink-700' },
+            { bg: 'bg-cyan-100 print:bg-cyan-100', text: 'text-cyan-700 print:text-cyan-800' },
+            { bg: 'bg-yellow-100 print:bg-yellow-100', text: 'text-amber-600 print:text-amber-700' },
+            { bg: 'bg-fuchsia-100 print:bg-fuchsia-100', text: 'text-fuchsia-700 print:text-fuchsia-800' },
+            { bg: 'bg-lime-100 print:bg-lime-100', text: 'text-lime-700 print:text-lime-800' }
         ];
 
         function applyTheme() {
@@ -636,33 +694,31 @@
             document.body.classList.remove('landscape-mode', 'portrait-1-mode');
             
             let printCss = '';
-            // CSS áp dụng margin cứng (18mm 15mm 20mm 15mm) cho thẻ page và căn chỉnh padding chuẩn trên preview
+            // Ghi chú: Dùng lề margin 15mm (1.5cm) chuẩn, thay thế cho max-width của Tailwind
             if (mode === 'landscape') {
                 document.body.classList.add('landscape-mode');
-                // Ép cột cho cả bản in và màn hình xem trước
                 printCss = `
-                    @media print { @page { size: A4 landscape; margin: 18mm 15mm 20mm 15mm; } #print-area { column-count: 2 !important; } }
-                    body.preview-active #print-area { width: 297mm !important; min-height: 210mm !important; column-count: 2 !important; padding: 18mm 15mm 20mm 15mm !important; }
+                    @media print { @page { size: A4 landscape; margin: 15mm; } #print-area { column-count: 2 !important; } }
+                    body.preview-active #print-area { width: 297mm !important; min-height: 210mm !important; column-count: 2 !important; padding: 15mm !important; }
                     body.preview-active .print-footer { bottom: 10mm; left: 15mm; right: 15mm; }
                 `;
             } else if (mode === 'portrait-1') {
                 document.body.classList.add('portrait-1-mode');
                 printCss = `
-                    @media print { @page { size: A4 portrait; margin: 18mm 15mm 20mm 15mm; } #print-area { column-count: 1 !important; } }
-                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 1 !important; padding: 18mm 15mm 20mm 15mm !important; }
+                    @media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 1 !important; } }
+                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 1 !important; padding: 15mm !important; }
                     body.preview-active .print-footer { bottom: 10mm; left: 15mm; right: 15mm; }
                 `;
             } else {
                 printCss = `
-                    @media print { @page { size: A4 portrait; margin: 18mm 15mm 20mm 15mm; } #print-area { column-count: 2 !important; } }
-                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 2 !important; padding: 18mm 15mm 20mm 15mm !important; }
+                    @media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 2 !important; } }
+                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 2 !important; padding: 15mm !important; }
                     body.preview-active .print-footer { bottom: 10mm; left: 15mm; right: 15mm; }
                 `;
             }
             
             styleEl.innerHTML = printCss;
             
-            // Cập nhật lại giao diện bảng ngay khi đổi hướng giấy
             if (currentLoadedData.length > 0) renderData(currentLoadedData);
         }
 
@@ -769,6 +825,50 @@
                         headerClass += "bg-gradient-to-r from-cyan-100 to-blue-200 text-cyan-900"; 
                         textThemeClass = "text-cyan-900 print:text-cyan-900";
                         break;
+                    // --- CÁC THEME MỚI ---
+                    case 'sunflower':
+                        headerClass += "bg-yellow-200 print:bg-yellow-200 text-yellow-900 border-yellow-300";
+                        textThemeClass = "text-yellow-900 print:text-yellow-900";
+                        break;
+                    case 'matcha':
+                        headerClass += "bg-lime-200 print:bg-lime-200 text-lime-900 border-lime-300";
+                        textThemeClass = "text-lime-900 print:text-lime-900";
+                        break;
+                    case 'lavender':
+                        headerClass += "bg-indigo-200 print:bg-indigo-200 text-indigo-900 border-indigo-300";
+                        textThemeClass = "text-indigo-900 print:text-indigo-900";
+                        break;
+                    case 'macaron':
+                        headerClass += "bg-rose-100 print:bg-rose-100 text-teal-800 border-rose-200";
+                        textThemeClass = "text-teal-800 print:text-teal-900";
+                        break;
+                    case 'mint':
+                        headerClass += "bg-emerald-100 print:bg-emerald-100 text-emerald-900 border-emerald-200";
+                        textThemeClass = "text-emerald-900 print:text-emerald-900";
+                        break;
+                    case 'cherry':
+                        headerClass += "bg-red-200 print:bg-red-200 text-red-900 border-red-300";
+                        textThemeClass = "text-red-900 print:text-red-900";
+                        break;
+                    case 'coffee':
+                        headerClass += "bg-stone-200 print:bg-stone-200 text-stone-800 border-stone-300";
+                        textThemeClass = "text-stone-800 print:text-stone-900";
+                        break;
+                    case 'autumn':
+                        headerClass += "bg-orange-200 print:bg-orange-200 text-orange-900 border-orange-300";
+                        textThemeClass = "text-orange-900 print:text-orange-900";
+                        break;
+                    case 'candy':
+                        const cPalette = candyPalettes[topicIndex % candyPalettes.length];
+                        headerClass += `${cPalette.bg} ${cPalette.text}`; 
+                        textThemeClass = cPalette.text;
+                        break;
+                    case 'dark-modern':
+                        headerClass += "bg-gray-800 print:bg-gray-800 text-cyan-300 border-gray-700";
+                        textThemeClass = "text-gray-800 print:text-gray-900"; // Trong nội dung bảng vẫn giữ chữ đen để dễ đọc
+                        groupDiv.className = 'topic-group bg-white rounded-lg shadow-sm border-2 border-gray-800 overflow-hidden print:mb-1';
+                        break;
+                    // ---------------------
                     default: 
                         headerClass += "bg-blue-100 print:bg-blue-100 text-blue-900"; 
                         textThemeClass = "text-blue-900 print:text-blue-900";
