@@ -240,6 +240,55 @@
                 </button>
             </div>
             
+            <!-- --- MENU TẠO PROMPT THÔNG MINH --- -->
+            <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm">
+                <div class="flex justify-between items-center cursor-pointer select-none" onclick="togglePanel('panel-prompt', 'icon-prompt')">
+                    <h3 class="text-sm font-bold text-indigo-700 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 112 0v1a1 1 0 11-2 0zM13.536 14.95a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0zM10 8a2 2 0 100 4 2 2 0 000-4z"></path></svg>
+                        Menu Tạo Prompt Thông Minh (Dành cho AI)
+                    </h3>
+                    <svg id="icon-prompt" class="w-5 h-5 text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </div>
+                <div id="panel-prompt" class="mt-3 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Môn học:</label>
+                            <select id="prompt-subject" class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                                <option value="Toán học">Toán học</option>
+                                <option value="Vật lý">Vật lý</option>
+                                <option value="Hóa học">Hóa học</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Khối lớp:</label>
+                            <select id="prompt-grade" class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                                <option value="Lớp 10">Lớp 10</option>
+                                <option value="Lớp 11">Lớp 11</option>
+                                <option value="Lớp 12">Lớp 12</option>
+                                <option value="Ôn thi THPT Quốc gia">Ôn thi THPT Quốc gia</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Chủ đề cần sinh:</label>
+                            <input type="text" id="prompt-topic" placeholder="Ví dụ: Đạo hàm, Hình học không gian..." class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-[11px] font-bold text-indigo-600 mb-1">Chú thích / Yêu cầu cụ thể (Không bắt buộc):</label>
+                        <input type="text" id="prompt-notes" placeholder="Ví dụ: Tập trung vào các công thức vận dụng cao, thêm mẹo nhớ nhanh..." class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400">
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button onclick="generateAdvancedPrompt()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition shadow-md flex-1">
+                            ✨ Tạo Prompt Chuyên Gia
+                        </button>
+                        <button id="copy-advanced-btn" onclick="copyAdvancedPrompt()" class="hidden bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-6 rounded-lg text-sm transition shadow-sm">
+                            📋 Copy Prompt
+                        </button>
+                    </div>
+                    <div id="advanced-prompt-result" class="hidden mt-4 bg-white p-3 rounded-lg border border-indigo-100 text-[11px] text-gray-700 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto shadow-inner"></div>
+                </div>
+            </div>
+
             <!-- --- BỘ ĐIỀU KHIỂN GIAO DIỆN & FONT CHỮ --- -->
             <div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
                 <div class="flex justify-between items-center cursor-pointer select-none border-b pb-2 mb-3" onclick="togglePanel('panel-display', 'icon-display')">
@@ -1058,22 +1107,33 @@
             const subject = document.getElementById('prompt-subject').value;
             const grade = document.getElementById('prompt-grade').value;
             const topic = document.getElementById('prompt-topic').value || "[Chủ đề cụ thể]";
+            const notes = document.getElementById('prompt-notes').value.trim();
             
-            const advancedPrompt = `Hãy đóng vai một chuyên gia giáo dục và biên soạn tài liệu học thuật. 
-Hãy tạo cho tôi một bảng tổng hợp kiến thức đầy đủ, tinh gọn và hiệu quả nhất cho môn ${subject}, ${grade}.
+            let advancedPrompt = `Bạn là một Chuyên gia Giáo dục hàng đầu và là tác giả sách tham khảo xuất sắc.
+Nhiệm vụ của bạn là tổng hợp kiến thức chuyên đề: **"${topic}"** (Môn: ${subject} - ${grade}).
 
-CHỦ ĐỀ CẦN TỔNG HỢP: ${topic}
+**MỤC TIÊU CHẤT LƯỢNG (BẮT BUỘC):**
+1. **Chính xác tuyệt đối:** 100% công thức toán học/khoa học không được có sai sót.
+2. **Ngắn gọn & Súc tích:** Trình bày cực kỳ tối ưu, loại bỏ từ ngữ dư thừa, hướng tới việc tra cứu nhanh gọn.
+3. **Củng cố kiến thức:** Cách sắp xếp logic, ví dụ minh họa mang tính đặc trưng, giúp học sinh nhìn vào là hiểu và nhớ lâu.`;
 
-YÊU CẦU ĐỊNH DẠNG:
-Hãy xuất kết quả dưới dạng bảng Markdown có 5 cột: "Chủ đề" | "Tên công thức" | "Công thức" | "Ví dụ" | "Link bài tập".
+            if (notes) {
+                advancedPrompt += `\n4. **Yêu cầu đặc biệt từ người dùng:** ${notes}`;
+            }
 
-QUY TẮC NỘI DUNG (QUAN TRỌNG):
-1. Cột "Chủ đề": Phân chia kiến thức logic (vd: 1. Đạo hàm hàm số, 2. Đạo hàm lượng giác...).
-2. Cột "Công thức": Viết bằng cú pháp LaTeX chuẩn, kẹp trong cặp dấu $ $. Ví dụ: $\\frac{a}{b}$.
-3. Cột "Ví dụ": Viết ví dụ áp dụng ngắn gọn nhất, cũng sử dụng LaTeX trong $ $.
-4. Cột "Link bài tập": Cung cấp đường dẫn web (URL) tới một tài liệu hoặc bài tập mẫu liên quan. Nếu không có thì bỏ trống.
-5. Nếu một ô cần xuống dòng, bắt buộc sử dụng thẻ <br> thay vì phím Enter.
-6. Nội dung phải cực kỳ tinh gọn, thiết kế tối ưu hiển thị khổ giấy A4.`;
+            advancedPrompt += `\n\n**ĐỊNH DẠNG ĐẦU RA (NGHIÊM NGẶT):**
+Vui lòng chỉ trả về DUY NHẤT một bảng Markdown có chính xác 5 cột như sau:
+| Chủ đề | Tên công thức | Công thức | Ví dụ | Link bài tập |
+
+**QUY TẮC TRÌNH BÀY TRONG BẢNG:**
+- **Cột Chủ đề:** Đánh số thứ tự và phân nhóm logic (VD: 1. Đạo hàm cơ bản, 2. Đạo hàm lượng giác...).
+- **Cột Tên công thức:** Viết ngắn gọn, dễ hiểu.
+- **Cột Công thức:** BẮT BUỘC dùng cú pháp LaTeX chuẩn, bọc trong cặp dấu \`$ $\`. VD: \`$\\frac{a}{b}$\`.
+- **Cột Ví dụ:** Đưa ra ví dụ kinh điển, siêu ngắn, bọc toán học bằng \`$ $\`.
+- **Cột Link bài tập:** Nếu có link (Wiki, web) thì thêm vào, không có thì bỏ trống.
+- **Dòng mới:** Nếu cần xuống dòng trong 1 ô, bắt buộc dùng thẻ \`<br>\`, không được dùng phím Enter.
+
+Bảng này sẽ được sao chép thẳng vào Excel, nên hãy đảm bảo không có văn bản dư thừa trước và sau bảng.`;
 
             const resultDiv = document.getElementById('advanced-prompt-result');
             resultDiv.innerText = advancedPrompt;
