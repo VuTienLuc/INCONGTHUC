@@ -178,7 +178,19 @@
                 z-index: 100;
             }
             
-            #watermark-display { display: block; }
+            /* Sửa lỗi Watermark khi in (chống bị máy in lược bỏ) */
+            #watermark-display { 
+                display: block !important; 
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) rotate(-45deg) !important;
+                opacity: 1 !important; /* Tránh dùng opacity vì dễ bị xóa lúc in */
+                color: rgba(156, 163, 175, 0.25) !important; /* Dùng rgba tạo độ mờ an toàn */
+                z-index: -1 !important; /* Ở dưới lớp văn bản */
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
 
             /* Ẩn canvas mã QR, hiện ảnh img thay thế để không lỗi hiển thị */
             .qr-code-container canvas { display: none !important; }
@@ -238,7 +250,13 @@
             border-top: 1px dashed #9ca3af;
             padding-top: 4px;
         }
-        body.preview-active #watermark-display { display: block; }
+        
+        body.preview-active #watermark-display { 
+            display: block !important; 
+            z-index: 0;
+            color: rgba(156, 163, 175, 0.25) !important;
+            opacity: 1 !important;
+        }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -262,7 +280,10 @@
             overflow-y: hidden;
         }
 
-        #watermark-display { display: none; }
+        /* Đảm bảo Watermark ẩn khi đang ở chế độ chỉnh sửa (tránh vướng víu) */
+        @media screen {
+            body:not(.preview-active) #watermark-display { display: none !important; }
+        }
 
         /* QR Code CSS */
         .qr-code-container img, .qr-code-container canvas {
@@ -617,7 +638,9 @@
                 let watermarkText = watermarkInput.value;
                 let watermarkEl = document.getElementById('watermark-display');
                 watermarkEl.innerText = watermarkText;
-                watermarkEl.style.display = watermarkText ? '' : 'none';
+                
+                // Ở chế độ xem bình thường, nếu input rỗng sẽ tự ẩn vì nội dung innerText rỗng.
+                // Trạng thái bật/tắt (hiện) được kiểm soát an toàn tuyệt đối bởi CSS `@media` và `!important`.
             }
         }
 
