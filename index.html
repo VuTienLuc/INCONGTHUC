@@ -119,11 +119,10 @@
                 font-size: 8.5pt;
                 color: #4b5563;
                 display: flex !important;
-                justify-content: space-between;
+                justify-content: center; /* Đổi thành center vì đã bỏ fake số trang */
                 background: white;
                 -webkit-print-color-adjust: exact;
             }
-            /* Xóa reset viền/đổ bóng cứng nhắc để in đẹp như Preview */
         }
 
         /* --- CHẾ ĐỘ XEM TRƯỚC (IN-APP PREVIEW) CHUYÊN NGHIỆP --- */
@@ -175,6 +174,7 @@
             left: 10mm;
             right: 10mm;
             width: auto;
+            justify-content: center;
         }
 
         /* Tùy chỉnh thanh cuộn cho màn hình */
@@ -348,6 +348,10 @@
                         <input type="text" id="input-class" placeholder="Nhập lớp..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400">
                     </div>
                 </div>
+                <!-- Hướng dẫn bật đánh số trang -->
+                <div class="mt-4 text-xs text-blue-700 bg-blue-100 p-2.5 rounded-lg border border-blue-200 leading-relaxed shadow-inner">
+                    💡 <b>Mẹo đánh số trang tự động:</b> Trình duyệt không cho phép code tự tính toán trang. Để hiện số trang tự động <i>(vd: Trang 1, 2...)</i> ở góc giấy, khi cửa sổ in hiện ra, bạn hãy mở phần <b>"Cài đặt khác" (More settings)</b> và tích chọn <b>"Tiêu đề và chân trang" (Headers and footers)</b>.
+                </div>
             </div>
 
             <div id="status-message" class="text-center mt-3 text-sm font-medium text-red-500 hidden"></div>
@@ -402,8 +406,7 @@ QUY TẮC QUAN TRỌNG:
 
             <!-- Chân trang khi in -->
             <div class="print-footer hidden print:flex">
-                <span id="display-footer" class="font-medium">Tài liệu lưu hành nội bộ - Chúc các em thi tốt!</span>
-                <span class="italic">Trang ...</span>
+                <span id="display-footer" class="font-medium text-center">Tài liệu lưu hành nội bộ - Chúc các em thi tốt!</span>
             </div>
         </div>
     </div>
@@ -589,8 +592,8 @@ QUY TẮC QUAN TRỌNG:
                 showMessage("⚠️ Lỗi: Không có dữ liệu để tải PDF!", true);
                 return;
             }
-            // Hướng dẫn người dùng cách trích xuất file PDF nét nhất bằng công cụ native của trình duyệt
-            alert("💡 Mẹo xuất PDF siêu nét: \nTrong cửa sổ sắp hiện ra, ở mục 'Đích đến' (Destination) hoặc 'Máy in' (Printer), bạn hãy chọn 'Lưu dưới dạng PDF' (Save as PDF) rồi bấm Lưu nhé!");
+            // Cập nhật hướng dẫn người dùng cách bật chế độ đánh số trang tự động của trình duyệt
+            alert("💡 Mẹo xuất PDF siêu nét và Đánh số trang tự động:\n\n1. Chọn 'Lưu dưới dạng PDF' (Save as PDF).\n2. Mở 'Cài đặt khác' (More settings) -> Tích chọn 'Tiêu đề và chân trang' (Headers and footers) để hệ thống tự đếm số trang.\n3. Nhớ tích 'Đồ họa nền' (Background graphics) để giữ màu sắc!");
             triggerPrint();
         }
 
