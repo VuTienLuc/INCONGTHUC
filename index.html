@@ -41,106 +41,112 @@
             --print-line-height: 1.15;
         }
 
-        /* Tối ưu hóa cho bản in A4 - ĐỘ DÃN DÒNG CHUẨN MỰC */
+        /* --- SỬA LỖI IN BỊ CẮT TRANG (CHỈ CÓ 1 TRANG) --- */
         @media print {
             @page {
                 size: A4;
-                margin: 15mm; /* Lề in chuẩn an toàn 1.5cm tránh mất chữ */
+                margin: 15mm; /* Lề in chuẩn 1.5cm */
             }
+            
+            /* LOẠI BỎ TẤT CẢ FLEXBOX GÂY LỖI CẮT TRANG KHI IN CỦA TRÌNH DUYỆT */
+            html, body, #print-area-wrapper, #print-area, #content-container {
+                display: block !important;
+                height: auto !important;
+                min-height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                position: static !important;
+                background: white !important;
+            }
+
             body {
-                background: white;
                 color: black;
                 font-family: var(--print-font-family) !important;
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
             }
-            .no-print {
-                display: none !important;
-            }
+            
+            .no-print { display: none !important; }
+            #preview-controls { display: none !important; }
             
             #print-area-wrapper {
                 padding: 0 !important;
-                min-height: auto !important;
-                display: block !important;
-                width: 100% !important;
-            }
-            #print-area {
-                column-count: 2; 
-                column-gap: 10px; /* Thu hẹp khe hở cột */
-                padding: 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
+            }
+
+            #print-area {
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 transform: none !important; 
                 box-shadow: none !important;
-                min-height: auto !important;
-                font-family: var(--print-font-family) !important;
+                column-gap: 10px;
+                /* BẮT BUỘC: Cho phép cột tràn sang trang tiếp theo */
+                column-fill: auto !important; 
             }
 
             .topic-group {
                 break-inside: auto; 
-                margin-bottom: 4px !important; /* Dãn dòng nhỏ nhất giữa các nhóm */
+                margin-bottom: 4px !important;
             }
+            
             .theme-header {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 break-after: avoid; 
-                padding: 2px 4px !important; /* Ép lề tiêu đề nhỏ */
+                padding: 2px 4px !important;
             }
+            
             table {
                 width: 100%;
                 border-collapse: collapse;
                 margin-bottom: 0;
-                table-layout: fixed; /* GIẢI PHÁP 1: Ép khung bảng cố định, cấm phình to tràn lề */
+                table-layout: fixed;
+                page-break-inside: auto; /* Cho phép bảng ngắt trang */
             }
             tr {
                 break-inside: avoid; 
-                page-break-inside: avoid;
+                page-break-inside: avoid; /* Ngăn hàng bị cắt nửa chữ */
+                page-break-after: auto;
             }
             th, td {
                 border: 1px solid #9ca3af !important; 
-                padding: 2px 3px !important; /* Dãn dòng cực đại: Lề trong ô chỉ 2px */
+                padding: 2px 3px !important;
                 text-align: left;
-                word-wrap: break-word; /* GIẢI PHÁP 2: Chữ tự bẻ dòng nếu quá dài */
+                word-wrap: break-word; 
                 overflow-wrap: break-word;
             }
             
-            /* Áp dụng Size chữ động cho nội dung bảng */
             .content-cell {
                 font-size: var(--print-font-size) !important;
                 line-height: var(--print-line-height) !important;
             }
 
-            /* GIẢI PHÁP 3: Xử lý công thức Toán quá dài */
-            mjx-container {
-                max-width: 100% !important;
-                overflow-x: hidden !important; /* Ẩn đi phần dư thừa nếu không thể bẻ dòng khi in */
-            }
-            mjx-math {
-                white-space: normal !important; /* Buộc công thức Toán tự bẻ xuống dòng */
-            }
-
-            /* Ép MathJax bớt khoảng trống thừa tuyệt đối */
-            mjx-container[display="true"] {
-                margin: 1px 0 !important;
-                padding: 0 !important;
-            }
+            /* Fix công thức Toán tràn lề */
+            mjx-container { max-width: 100% !important; overflow-x: hidden !important; }
+            mjx-math { white-space: normal !important; }
+            mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
             
-            /* Tỉ lệ size chữ theo base size */
+            /* Header & Footer trong bản in */
+            .title-print, .student-info-print {
+                column-span: all !important;
+                -webkit-column-span: all !important;
+                display: block !important;
+                width: 100% !important;
+            }
             .title-print {
                 text-align: center;
                 font-size: calc(var(--print-font-size) * 1.5) !important;
                 line-height: 1.2 !important;
                 font-weight: bold;
                 margin-bottom: 4px;
-                column-span: all;
             }
             .student-info-print {
                 text-align: center;
                 font-size: calc(var(--print-font-size) * 1.1) !important;
                 font-weight: 500;
                 margin-bottom: 8px;
-                column-span: all;
-                -webkit-column-span: all;
             }
             .theme-header h3, .theme-header span {
                 font-size: calc(var(--print-font-size) * 1.1) !important;
@@ -162,13 +168,9 @@
             
             #watermark-display { display: block; }
 
-            /* Fix QR in print */
-            .qr-code-container canvas {
-                display: none; /* Ẩn canvas khi in, chỉ dùng img để tránh lỗi render */
-            }
-            .qr-code-container img {
-                display: block !important;
-            }
+            /* Fix QR in print: canvas hay bị lỗi trắng ở Chrome khi in, thay bằng thẻ img */
+            .qr-code-container canvas { display: none !important; }
+            .qr-code-container img { display: block !important; }
         }
 
         /* --- CHẾ ĐỘ XEM TRƯỚC (IN-APP PREVIEW) CHUYÊN NGHIỆP --- */
@@ -182,41 +184,47 @@
         body.preview-active #print-area-wrapper {
             padding-top: 80px; 
             padding-bottom: 60px;
-            display: flex;
+            display: flex; /* Flexbox cho màn hình để căn giữa trang giấy */
             justify-content: center;
             width: 100%;
             min-height: 100vh;
         }
 
         body.preview-active #print-area {
-            width: 210mm;
-            min-height: 297mm; 
+            /* width và height sẽ được ghi đè tự động bởi JS (Hàm applyOrientation) */
             margin: 0;
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.4); 
-            padding: 15mm; /* Khớp với lề bản in thực tế chuẩn 1.5cm */
-            column-count: 2;
+            padding: 15mm; /* Khớp với lề bản in 1.5cm */
             column-gap: 10px;
             position: relative;
             transform: scale(var(--preview-zoom, 1));
             transform-origin: top center;
             transition: transform 0.15s ease-out;
             font-family: var(--print-font-family);
+            /* Trên màn hình, các cột tự động cân bằng chiều cao */
+            column-fill: balance; 
         }
         
         /* Đồng bộ CSS Xem trước với CSS in thật */
         body.preview-active .content-cell { font-size: var(--print-font-size); line-height: var(--print-line-height); }
-        body.preview-active .topic-group { margin-bottom: 4px; }
+        body.preview-active .topic-group { margin-bottom: 4px; break-inside: avoid; } /* Tránh gãy thẻ trên màn hình */
         body.preview-active th, body.preview-active td { padding: 2px 3px !important; }
         body.preview-active mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
-        body.preview-active .title-print { font-size: calc(var(--print-font-size) * 1.5); margin-bottom: 4px; display: block; column-span: all; }
-        body.preview-active .student-info-print { font-size: calc(var(--print-font-size) * 1.1); margin-bottom: 8px; display: block; column-span: all; }
+        body.preview-active .title-print, body.preview-active .student-info-print { 
+            display: block; 
+            column-span: all; 
+            -webkit-column-span: all; 
+            width: 100%; 
+        }
+        body.preview-active .title-print { font-size: calc(var(--print-font-size) * 1.5); margin-bottom: 4px; }
+        body.preview-active .student-info-print { font-size: calc(var(--print-font-size) * 1.1); margin-bottom: 8px; }
         body.preview-active .theme-header h3, body.preview-active .theme-header span { font-size: calc(var(--print-font-size) * 1.1); padding: 2px 4px; }
         
         body.preview-active .print-footer {
             display: flex !important;
             position: absolute;
-            bottom: 10mm; left: 15mm; right: 15mm; /* Cập nhật khoảng cách footer ở chế độ preview */
+            bottom: 10mm; left: 15mm; right: 15mm;
             width: auto;
             justify-content: center;
             font-size: calc(var(--print-font-size) * 0.85);
@@ -233,7 +241,7 @@
 
         .data-table { 
             width: 100%;
-            table-layout: fixed; /* Ép khung cố định ngoài màn hình preview */
+            table-layout: fixed;
         }
         .data-table th, .data-table td { 
             border: 1px solid #e5e7eb; 
@@ -243,16 +251,11 @@
 
         .math-content mjx-container {
             max-width: 100%;
-            overflow-x: auto; /* Cho phép cuộn ngang đối với công thức dài trên màn hình */
+            overflow-x: auto;
             overflow-y: hidden;
         }
 
-        /* Watermark */
         #watermark-display { display: none; }
-
-        /* Cấu hình hướng giấy ngang/dọc 1 cột */
-        body.landscape-mode.preview-active #print-area { width: 297mm !important; min-height: 210mm !important; column-count: 2 !important; }
-        body.portrait-1-mode.preview-active #print-area { column-count: 1 !important; }
 
         /* QR Code CSS */
         .qr-code-container img, .qr-code-container canvas {
@@ -262,12 +265,8 @@
         }
     </style>
 
-    <style id="dynamic-print-style">
-        @media print {
-            @page { size: A4 portrait; margin: 15mm; }
-            #print-area { column-count: 2 !important; }
-        }
-    </style>
+    <!-- Thẻ Style động dùng để ép hướng giấy và số cột từ JS -->
+    <style id="dynamic-print-style"></style>
 </head>
 <body class="bg-blue-50 text-gray-800 font-sans min-h-screen">
 
@@ -486,7 +485,8 @@
                 <span id="display-class" class="inline-block border-b border-dashed border-gray-400 w-24 text-left text-blue-800"></span>
             </div>
             
-            <div id="content-container" class="print:column-count-2 print:column-gap-4 space-y-4 print:space-y-0 print:pb-10">
+            <!-- Bỏ class column-count ở phần div container, chuyển việc chia cột sang CSS động của #print-area -->
+            <div id="content-container" class="space-y-4 print:space-y-0 print:pb-10">
                 <div class="text-center text-gray-400 py-10 no-print italic content-cell">
                     Chưa có dữ liệu...
                 </div>
@@ -539,7 +539,17 @@
             { "Chủ đề": "2. Lượng giác", "Tên công thức": "Sin & Cos", "Công thức": "$(\\sin x)' = \\cos x$<br>$(\\cos x)' = -\\sin x$", "Ví dụ": "$(\\sin 2x)' = 2\\cos 2x$", "Link bài tập": "https://vi.wikipedia.org/wiki/H%C3%A0m_s%E1%BB%91_l%C6%B0%E1%BB%A3ng_gi%C3%A1c" },
             { "Chủ đề": "2. Lượng giác", "Tên công thức": "Tan & Cot", "Công thức": "$(\\tan x)' = \\frac{1}{\\cos^2 x}$<br>$(\\cot x)' = -\\frac{1}{\\sin^2 x}$", "Ví dụ": "$(\\tan 3x)' = \\frac{3}{\\cos^2 3x}$" },
             { "Chủ đề": "3. Logarit & Mũ", "Tên công thức": "Tổng/Hiệu", "Công thức": "$\\log_a(xy) = \\log_a x + \\log_a y$<br>$\\log_a(\\frac{x}{y}) = \\log_a x - \\log_a y$", "Ví dụ": "$\\log_2(8) = \\log_2(4) + \\log_2(2)$" },
-            { "Chủ đề": "4. Tích phân", "Tên công thức": "Đa thức", "Công thức": "$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$", "Ví dụ": "$\\int x^2 dx = \\frac{x^3}{3} + C$" }
+            { "Chủ đề": "4. Tích phân", "Tên công thức": "Đa thức", "Công thức": "$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$", "Ví dụ": "$\\int x^2 dx = \\frac{x^3}{3} + C$" },
+            // Thêm data giả lập để xem chức năng cuộn trang nhiều dòng
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" },
+            { "Chủ đề": "5. Ví dụ kéo dài", "Tên công thức": "Kiểm tra", "Công thức": "$1+1=2$", "Ví dụ": "Trang in sẽ tự đẩy" }
         ];
 
         // --- ĐỒNG BỘ TIÊU ĐỀ ---
@@ -606,20 +616,36 @@
             if (currentLoadedData.length > 0) renderData(currentLoadedData);
         }
 
+        // --- ĐỒNG BỘ HIỂN THỊ CỘT & HƯỚNG GIẤY ---
         function applyOrientation() {
             const mode = document.getElementById('orientation-select').value;
             const styleEl = document.getElementById('dynamic-print-style');
+            
+            // Xóa CSS cũ
             document.body.classList.remove('landscape-mode', 'portrait-1-mode');
             
+            let printCss = '';
             if (mode === 'landscape') {
                 document.body.classList.add('landscape-mode');
-                styleEl.innerHTML = `@media print { @page { size: A4 landscape; margin: 15mm; } #print-area { column-count: 2 !important; } }`;
+                // Ép cột cho cả bản in và màn hình xem trước
+                printCss = `
+                    @media print { @page { size: A4 landscape; margin: 15mm; } #print-area { column-count: 2 !important; } }
+                    body.preview-active #print-area { width: 297mm !important; min-height: 210mm !important; column-count: 2 !important; }
+                `;
             } else if (mode === 'portrait-1') {
                 document.body.classList.add('portrait-1-mode');
-                styleEl.innerHTML = `@media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 1 !important; } }`;
+                printCss = `
+                    @media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 1 !important; } }
+                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 1 !important; }
+                `;
             } else {
-                styleEl.innerHTML = `@media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 2 !important; } }`;
+                printCss = `
+                    @media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 2 !important; } }
+                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 2 !important; }
+                `;
             }
+            
+            styleEl.innerHTML = printCss;
             
             // Cập nhật lại giao diện bảng ngay khi đổi hướng giấy
             if (currentLoadedData.length > 0) renderData(currentLoadedData);
@@ -708,14 +734,30 @@
                 groupDiv.className = 'topic-group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:mb-1';
                 
                 let headerClass = "border-gray-200 print:border-gray-400 ";
+                let textThemeClass = ""; // Biến chứa màu chữ động theo chủ đề
+                
                 switch (theme) {
-                    case 'mono': headerClass += "bg-gray-200 print:bg-gray-200 text-black"; break;
+                    case 'mono': 
+                        headerClass += "bg-gray-200 print:bg-gray-200 text-black"; 
+                        textThemeClass = "text-black print:text-black";
+                        break;
                     case 'colorful': 
                         const palette = colorPalettes[topicIndex % colorPalettes.length];
-                        headerClass += `${palette.bg} ${palette.text}`; break;
-                    case 'pink': headerClass += "bg-pink-100 print:bg-pink-100 text-pink-900"; break;
-                    case 'ocean': headerClass += "bg-gradient-to-r from-cyan-100 to-blue-200 text-cyan-900"; break;
-                    default: headerClass += "bg-blue-100 print:bg-blue-100 text-blue-900"; break;
+                        headerClass += `${palette.bg} ${palette.text}`; 
+                        textThemeClass = palette.text;
+                        break;
+                    case 'pink': 
+                        headerClass += "bg-pink-100 print:bg-pink-100 text-pink-900"; 
+                        textThemeClass = "text-pink-900 print:text-pink-900";
+                        break;
+                    case 'ocean': 
+                        headerClass += "bg-gradient-to-r from-cyan-100 to-blue-200 text-cyan-900"; 
+                        textThemeClass = "text-cyan-900 print:text-cyan-900";
+                        break;
+                    default: 
+                        headerClass += "bg-blue-100 print:bg-blue-100 text-blue-900"; 
+                        textThemeClass = "text-blue-900 print:text-blue-900";
+                        break;
                 }
 
                 let tableRows = '';
@@ -752,8 +794,8 @@
 
                     tableRows += `
                         <tr class="border-b border-gray-100 last:border-0 print:border-gray-400">
-                            <td class="content-cell font-medium text-gray-700 ${nameWidth} bg-gray-50 print:bg-transparent align-top print:border-gray-400 border-r border-gray-100">${name}</td>
-                            <td class="content-cell text-gray-900 ${formulaWidth} math-content align-top print:border-gray-400">${formatMath(formula)}</td>
+                            <td class="content-cell font-bold ${textThemeClass} ${nameWidth} bg-gray-50 print:bg-transparent align-top print:border-gray-400 border-r border-gray-100">${name}</td>
+                            <td class="content-cell ${textThemeClass} ${formulaWidth} math-content align-top print:border-gray-400">${formatMath(formula)}</td>
                             ${exampleColHTML} ${noteColHTML}
                         </tr>
                     `;
