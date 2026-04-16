@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tổng Hợp Công Thức Toán - In PDF A4</title>
+    <title>Tổng Hợp Công Thức Toán - In PDF & Trình Chiếu</title>
     
     <!-- Tailwind CSS cho giao diện -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,233 +41,68 @@
             --print-line-height: 1.15;
         }
 
-        /* --- SỬA LỖI IN BỊ CẮT TRANG VÀ DÀN TRANG SANG PHẢI --- */
+        /* --- CẤU HÌNH IN (PRINT MEDIA FORMATTING) --- */
         @media print {
-            @page {
-                size: A4;
-                /* Lề in chuẩn: 1.5cm đều các cạnh cho cân đối hoàn toàn */
-                margin: 15mm; 
-            }
-            
-            /* Ép buộc giãn 100% toàn bộ vùng chứa, ghi đè giới hạn của thư viện UI */
+            @page { size: A4; margin: 15mm; }
             html, body {
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-                background: white !important;
-                color: black;
+                width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important;
+                display: block !important; background: white !important; color: black;
                 font-family: var(--print-font-family) !important;
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
-                box-sizing: border-box !important;
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box !important;
             }
-            
-            .no-print, #preview-controls { display: none !important; }
-            
-            #print-area-wrapper {
-                width: 100% !important;
-                max-width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                display: block !important;
-            }
-
+            .no-print, #preview-controls, #presentation-overlay { display: none !important; }
+            #print-area-wrapper { width: 100% !important; padding: 0 !important; display: block !important; }
             #print-area {
-                width: 100% !important;
-                max-width: 100% !important; /* Sửa lỗi lệch sang trái do class container */
-                padding: 0 !important;
-                margin: 0 !important;
-                transform: none !important; 
-                box-shadow: none !important;
-                column-gap: 12px !important; /* Khoảng cách 2 cột */
-                column-fill: auto !important; 
-                display: block !important;
+                width: 100% !important; max-width: 100% !important; padding: 0 !important; transform: none !important; 
+                box-shadow: none !important; column-gap: 12px !important; column-fill: auto !important; display: block !important;
             }
-
-            #content-container {
-                width: 100% !important;
-                max-width: 100% !important;
-                padding-bottom: 10mm !important; /* Khoảng trống chân trang */
-                display: block !important;
-            }
-
-            .topic-group {
-                break-inside: auto; 
-                margin-bottom: 4px !important;
-                width: 100% !important;
-            }
-            
-            .theme-header {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                break-after: avoid; 
-                padding: 2px 4px !important;
-            }
-            
-            table {
-                width: 100% !important;
-                max-width: 100% !important;
-                border-collapse: collapse;
-                margin-bottom: 0;
-                table-layout: fixed;
-                page-break-inside: auto;
-            }
-            tr {
-                break-inside: avoid; 
-                page-break-inside: avoid; 
-                page-break-after: auto;
-            }
-            th, td {
-                border: 1px solid #9ca3af !important; 
-                padding: 2px 3px !important;
-                text-align: left;
-                word-wrap: break-word; 
-                overflow-wrap: break-word;
-            }
-            
-            .content-cell {
-                font-size: var(--print-font-size) !important;
-                line-height: var(--print-line-height) !important;
-            }
-
-            /* Fix công thức Toán */
+            #content-container { width: 100% !important; padding-bottom: 10mm !important; display: block !important; }
+            .topic-group { break-inside: auto; margin-bottom: 4px !important; width: 100% !important; }
+            .theme-header { -webkit-print-color-adjust: exact !important; break-after: avoid; padding: 2px 4px !important; }
+            table { width: 100% !important; border-collapse: collapse; table-layout: fixed; page-break-inside: auto; }
+            tr { break-inside: avoid; page-break-inside: avoid; page-break-after: auto; }
+            th, td { border: 1px solid #9ca3af !important; padding: 2px 3px !important; word-wrap: break-word; overflow-wrap: break-word; }
+            .content-cell { font-size: var(--print-font-size) !important; line-height: var(--print-line-height) !important; }
             mjx-container { max-width: 100% !important; overflow-x: hidden !important; }
             mjx-math { white-space: normal !important; }
             mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
             
-            /* --- THIẾT KẾ LẠI HEADER SANG TRỌNG --- */
-            .print-header-container {
-                column-span: all !important;
-                -webkit-column-span: all !important;
-                display: block !important;
-                width: 100% !important;
-                margin-bottom: 15px !important;
-            }
-            .title-print {
-                text-align: center;
-                font-size: calc(var(--print-font-size) * 1.8) !important;
-                line-height: 1.3 !important;
-                font-weight: 800 !important;
-                letter-spacing: 0.05em;
-                margin-bottom: 4px;
-            }
-            .student-info-print {
-                font-size: calc(var(--print-font-size) * 1.1) !important;
-            }
-            
-            /* Footer */
+            .print-header-container { column-span: all !important; -webkit-column-span: all !important; display: block !important; width: 100% !important; margin-bottom: 15px !important; }
+            .title-print { text-align: center; font-size: calc(var(--print-font-size) * 1.8) !important; line-height: 1.3 !important; font-weight: 800 !important; letter-spacing: 0.05em; margin-bottom: 4px; }
+            .student-info-print { font-size: calc(var(--print-font-size) * 1.1) !important; }
             .print-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                border-top: 1px dashed #9ca3af;
-                padding-top: 4px;
-                padding-bottom: 2px;
-                font-size: calc(var(--print-font-size) * 0.85) !important;
-                color: #4b5563;
-                display: flex !important;
-                justify-content: center; 
-                background: white !important; 
-                -webkit-print-color-adjust: exact;
-                z-index: 100;
+                position: fixed; bottom: 0; left: 0; width: 100%; border-top: 1px dashed #9ca3af; padding-top: 4px; padding-bottom: 2px;
+                font-size: calc(var(--print-font-size) * 0.85) !important; color: #4b5563; display: flex !important; justify-content: center; 
+                background: white !important; -webkit-print-color-adjust: exact; z-index: 100;
             }
-            
-            /* Sửa lỗi Watermark khi in (chống bị máy in lược bỏ và bị nền che) */
             #watermark-display { 
-                display: block !important; 
-                position: fixed !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) rotate(-45deg) !important;
-                opacity: 1 !important; /* Tránh dùng opacity vì dễ bị xóa lúc in */
-                color: rgba(156, 163, 175, 0.12) !important; /* Dùng rgba tạo độ mờ tinh tế hơn */
-                z-index: 9999 !important; /* Nằm LÊN TRÊN CÙNG để không bị bảng biểu che khuất */
-                font-size: 80pt !important; /* Cố định kích thước chuẩn */
-                pointer-events: none !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+                display: block !important; position: fixed !important; top: 50% !important; left: 50% !important;
+                transform: translate(-50%, -50%) rotate(-45deg) !important; opacity: 1 !important; color: rgba(156, 163, 175, 0.12) !important; 
+                z-index: 9999 !important; font-size: 80pt !important; pointer-events: none !important; -webkit-print-color-adjust: exact !important;
             }
-
-            /* Ẩn canvas mã QR, hiện ảnh img thay thế để không lỗi hiển thị */
             .qr-code-container canvas { display: none !important; }
             .qr-code-container img { display: block !important; }
         }
 
-        /* --- CHẾ ĐỘ XEM TRƯỚC (IN-APP PREVIEW) CHUYÊN NGHIỆP --- */
-        body.preview-active {
-            background-color: #323639; 
-        }
-        body.preview-active .no-print-preview {
-            display: none !important;
-        }
-        
-        body.preview-active #print-area-wrapper {
-            padding-top: 80px; 
-            padding-bottom: 60px;
-            display: flex; 
-            justify-content: center;
-            width: 100%;
-            min-height: 100vh;
-        }
-
+        /* --- CHẾ ĐỘ XEM TRƯỚC (IN-APP PREVIEW) --- */
+        body.preview-active { background-color: #323639; }
+        body.preview-active .no-print-preview { display: none !important; }
+        body.preview-active #print-area-wrapper { padding-top: 80px; padding-bottom: 60px; display: flex; justify-content: center; width: 100%; min-height: 100vh; }
         body.preview-active #print-area {
-            margin: 0;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.4); 
-            column-gap: 12px;
-            position: relative;
-            transform: scale(var(--preview-zoom, 1));
-            transform-origin: top center;
-            transition: transform 0.15s ease-out;
-            font-family: var(--print-font-family);
-            column-fill: balance; 
+            margin: 0; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.4); column-gap: 12px;
+            position: relative; transform: scale(var(--preview-zoom, 1)); transform-origin: top center; transition: transform 0.15s ease-out;
+            font-family: var(--print-font-family); column-fill: balance; 
         }
-        
         body.preview-active .content-cell { font-size: var(--print-font-size); line-height: var(--print-line-height); }
         body.preview-active .topic-group { margin-bottom: 4px; break-inside: avoid; } 
         body.preview-active th, body.preview-active td { padding: 2px 3px !important; }
         body.preview-active mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
-        
-        /* Đồng bộ Header ở màn hình xem trước */
-        body.preview-active .print-header-container { 
-            display: block; 
-            column-span: all; 
-            -webkit-column-span: all; 
-            width: 100%; 
-            margin-bottom: 15px;
-        }
-        body.preview-active .title-print { 
-            font-size: calc(var(--print-font-size) * 1.8); 
-            line-height: 1.3;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            margin-bottom: 4px; 
-        }
-        body.preview-active .student-info-print { 
-            font-size: calc(var(--print-font-size) * 1.1); 
-        }
+        body.preview-active .print-header-container { display: block; column-span: all; -webkit-column-span: all; width: 100%; margin-bottom: 15px; }
+        body.preview-active .title-print { font-size: calc(var(--print-font-size) * 1.8); line-height: 1.3; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 4px; }
+        body.preview-active .student-info-print { font-size: calc(var(--print-font-size) * 1.1); }
         body.preview-active .theme-header h3, body.preview-active .theme-header span { font-size: calc(var(--print-font-size) * 1.1); padding: 2px 4px; }
-        
-        body.preview-active .print-footer {
-            display: flex !important;
-            position: absolute;
-            width: auto;
-            justify-content: center;
-            font-size: calc(var(--print-font-size) * 0.85);
-            border-top: 1px dashed #9ca3af;
-            padding-top: 4px;
-        }
-        
-        body.preview-active #watermark-display { 
-            display: block !important; 
-            z-index: 9999 !important; /* Đưa lên trên cùng giống bản in */
-            color: rgba(156, 163, 175, 0.12) !important;
-            opacity: 1 !important;
-            font-size: 80pt !important;
-        }
+        body.preview-active .print-footer { display: flex !important; position: absolute; width: auto; justify-content: center; font-size: calc(var(--print-font-size) * 0.85); border-top: 1px dashed #9ca3af; padding-top: 4px; }
+        body.preview-active #watermark-display { display: block !important; z-index: 9999 !important; color: rgba(156, 163, 175, 0.12) !important; opacity: 1 !important; font-size: 80pt !important; }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -275,32 +110,27 @@
         ::-webkit-scrollbar-thumb { background: #c5d3e8; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #a3b8d7; }
 
-        .data-table { 
-            width: 100%;
-            table-layout: fixed;
-        }
-        .data-table th, .data-table td { 
-            border: 1px solid #e5e7eb; 
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
+        .data-table { width: 100%; table-layout: fixed; }
+        .data-table th, .data-table td { border: 1px solid #e5e7eb; word-wrap: break-word; overflow-wrap: break-word; }
+        .math-content mjx-container { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
 
-        .math-content mjx-container {
-            max-width: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
+        @media screen { body:not(.preview-active) #watermark-display { display: none !important; } }
+        .qr-code-container img, .qr-code-container canvas { width: 100% !important; height: auto !important; object-fit: contain; }
 
-        /* Đảm bảo Watermark ẩn khi đang ở chế độ chỉnh sửa (tránh vướng víu) */
-        @media screen {
-            body:not(.preview-active) #watermark-display { display: none !important; }
-        }
-
-        /* QR Code CSS */
-        .qr-code-container img, .qr-code-container canvas {
-            width: 100% !important;
-            height: auto !important;
-            object-fit: contain;
+        /* --- CHẾ ĐỘ TRÌNH CHIẾU (PRESENTATION MODE) CSS --- */
+        body.presentation-active { overflow: hidden; } /* Chống cuộn trang web khi đang trình chiếu */
+        #presentation-slide { font-family: var(--print-font-family); }
+        /* Ẩn scrollbar của thẻ chứa công thức trong slide nhưng vẫn cho cuộn ngang */
+        .slide-math-scroll::-webkit-scrollbar { height: 6px; }
+        .slide-math-scroll::-webkit-scrollbar-track { background: transparent; }
+        .slide-math-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        /* Font size động cho trình chiếu */
+        #slide-formula { font-size: calc(40px * var(--slide-font-scale, 1)); transition: font-size 0.2s ease; }
+        #slide-example { font-size: calc(35px * var(--slide-font-scale, 1)); transition: font-size 0.2s ease; }
+        @media (min-width: 768px) {
+            #slide-formula { font-size: calc(65px * var(--slide-font-scale, 1)); }
+            #slide-example { font-size: calc(50px * var(--slide-font-scale, 1)); }
         }
     </style>
 
@@ -355,14 +185,19 @@
                 </div>
             </div>
 
-            <!-- Nút Hành động -->
+            <!-- Nút Hành động chính -->
             <div class="mt-6 flex flex-wrap justify-center gap-3">
-                <button onclick="loadSampleData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-5 rounded-full text-sm">Tải dữ liệu mẫu</button>
-                <button onclick="togglePreview()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-5 rounded-full shadow-md text-sm">👁️ Xem trước bản in</button>
-                <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-full shadow-md text-sm">🖨️ In / Xuất PDF ngay</button>
+                <button onclick="loadSampleData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-5 rounded-full text-sm shadow-sm transition">Tải dữ liệu mẫu</button>
+                <button onclick="togglePreview()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-5 rounded-full shadow-md text-sm transition">👁️ Xem trước bản in</button>
+                <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-full shadow-md text-sm transition">🖨️ In / Xuất PDF</button>
+                <!-- NÚT TRÌNH CHIẾU MỚI -->
+                <button onclick="openPresentation()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-6 rounded-full shadow-md text-sm transition flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Trình chiếu 16:9
+                </button>
             </div>
             
-            <!-- --- MENU TẠO PROMPT THÔNG MINH (MỚI) --- -->
+            <!-- --- MENU TẠO PROMPT THÔNG MINH --- -->
             <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm">
                 <div class="flex justify-between items-center cursor-pointer select-none" onclick="togglePanel('panel-prompt', 'icon-prompt')">
                     <h3 class="text-sm font-bold text-indigo-700 flex items-center">
@@ -581,9 +416,94 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- MÀN HÌNH CHẾ ĐỘ TRÌNH CHIẾU (SLIDESHOW)    -->
+    <!-- ========================================== -->
+    <div id="presentation-overlay" class="hidden fixed inset-0 bg-[#121212]/95 backdrop-blur-sm z-[99999] flex items-center justify-center select-none">
+        <!-- Nút Tắt, Zoom và Fullscreen -->
+        <div class="absolute top-4 right-6 flex items-center gap-4 z-50">
+            <!-- Bộ điều khiển Zoom -->
+            <div class="flex items-center bg-white/10 rounded-lg px-2 py-1 shadow-inner backdrop-blur-sm border border-white/10">
+                <button onclick="changePresentationZoom(-0.1)" class="p-1 hover:bg-white/20 rounded text-white/70 hover:text-white transition" title="Thu nhỏ chữ (Phím -)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                </button>
+                <span id="slide-zoom-text" class="text-sm font-mono w-12 text-center text-white/90">100%</span>
+                <button onclick="changePresentationZoom(0.1)" class="p-1 hover:bg-white/20 rounded text-white/70 hover:text-white transition" title="Phóng to chữ (Phím +)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </button>
+            </div>
+
+            <button onclick="toggleFullscreen()" class="text-white/50 hover:text-blue-400 p-2 transition" title="Toàn màn hình (Phím F)">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l5-5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+            </button>
+            <button onclick="closePresentation()" class="text-white/50 hover:text-red-500 text-5xl leading-none transition" title="Đóng (Phím ESC)">&times;</button>
+        </div>
+        
+        <!-- Khung Slide 16:9 -->
+        <div id="presentation-slide" class="relative bg-white w-full max-w-[1400px] h-[100dvh] md:h-auto md:aspect-video rounded-none md:rounded-2xl shadow-2xl flex flex-col p-8 md:p-12 overflow-hidden mx-auto transition-colors duration-300">
+            
+            <!-- Phần Tiêu đề Slide -->
+            <div class="border-b-4 border-slate-200 pb-4 mb-6 md:mb-10 flex flex-col justify-end min-h-[120px]">
+                <h2 id="slide-topic" class="text-2xl md:text-3xl text-slate-500 uppercase tracking-widest font-bold mb-3 flex items-center gap-3">
+                    <span id="slide-icon" class="text-4xl"></span>
+                    <span id="slide-topic-text"></span>
+                </h2>
+                <h1 id="slide-name" class="text-4xl md:text-[55px] text-slate-800 font-extrabold leading-tight"></h1>
+            </div>
+            
+            <!-- Phần Nội dung (Công thức & Ví dụ) -->
+            <div class="flex-1 flex flex-col justify-center items-center text-center space-y-8 md:space-y-12 w-full max-w-5xl mx-auto">
+                
+                <!-- Công thức chính -->
+                <div class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 md:p-10 shadow-inner">
+                    <div id="slide-formula" class="text-slate-900 w-full overflow-x-auto slide-math-scroll py-2"></div>
+                </div>
+
+                <!-- Ví dụ -->
+                <div id="slide-example-container" class="w-full">
+                    <div class="text-xl md:text-2xl font-semibold text-slate-400 mb-4 uppercase tracking-widest">Ví dụ minh họa</div>
+                    <div id="slide-example" class="text-slate-700 w-full overflow-x-auto slide-math-scroll pb-4"></div>
+                </div>
+            </div>
+
+            <!-- Bộ đếm trang & Thanh tiến trình -->
+            <div class="absolute bottom-6 left-0 right-0 px-12 flex justify-between items-center text-slate-400 text-lg md:text-xl font-medium">
+                <div class="flex items-center gap-2">
+                    <span class="keyboard-hint bg-slate-100 border border-slate-200 rounded px-2 py-0.5 text-sm">⬅️</span>
+                    <span>Lùi</span>
+                </div>
+                <div class="flex items-center gap-4 w-1/3">
+                    <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div id="slide-progress" class="h-full bg-blue-500 transition-all duration-300 w-0"></div>
+                    </div>
+                    <span id="slide-counter" class="w-20 text-right font-mono">1 / 10</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span>Tiến</span>
+                    <span class="keyboard-hint bg-slate-100 border border-slate-200 rounded px-2 py-0.5 text-sm">➡️</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vùng bấm điều hướng Trái / Phải khổng lồ tàng hình (dành cho màn hình cảm ứng/chuột) -->
+        <div onclick="prevSlide()" class="absolute left-0 top-0 bottom-0 w-[15%] cursor-pointer group flex items-center justify-start pl-6" title="Trang trước (Phím mũi tên Trái)">
+            <div class="w-16 h-16 rounded-full bg-black/20 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </div>
+        </div>
+        <div onclick="nextSlide()" class="absolute right-0 top-0 bottom-0 w-[15%] cursor-pointer group flex items-center justify-end pr-6" title="Trang sau (Phím mũi tên Phải)">
+            <div class="w-16 h-16 rounded-full bg-black/20 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </div>
+        </div>
+    </div>
+    <!-- ========================================== -->
+
     <script>
         let currentLoadedData = [];
         let currentBaseFontSize = 9.5; // Kích thước chữ mặc định (đơn vị pt)
+        let presentationSlideIndex = 0; // Biến trạng thái cho chế độ trình chiếu
+        let presentationFontScale = 1; // Biến zoom font chữ cho trình chiếu
 
         // --- HÀM ẨN HIỆN PANEL ---
         function togglePanel(panelId, iconId) {
@@ -1074,6 +994,142 @@ QUY TẮC NỘI DUNG (QUAN TRỌNG):
         
         // Khởi tạo trạng thái icon cho panel bị ẩn (Prompt)
         document.getElementById('icon-prompt').style.transform = 'rotate(180deg)';
+
+        // ==========================================
+        // CÁC HÀM XỬ LÝ CHẾ ĐỘ TRÌNH CHIẾU 16:9
+        // ==========================================
+        
+        function changePresentationZoom(delta) {
+            presentationFontScale += delta;
+            if (presentationFontScale < 0.5) presentationFontScale = 0.5;
+            if (presentationFontScale > 3) presentationFontScale = 3; // Giới hạn tối đa 300%
+            document.getElementById('presentation-slide').style.setProperty('--slide-font-scale', presentationFontScale);
+            document.getElementById('slide-zoom-text').innerText = Math.round(presentationFontScale * 100) + '%';
+        }
+
+        function openPresentation() {
+            if (!currentLoadedData || currentLoadedData.length === 0) {
+                return showMessage("⚠️ Chưa có dữ liệu để trình chiếu. Vui lòng tải dữ liệu trước!", true);
+            }
+            presentationSlideIndex = 0;
+            
+            // Reset zoom chữ khi mở trình chiếu
+            presentationFontScale = 1;
+            document.getElementById('presentation-slide').style.setProperty('--slide-font-scale', 1);
+            document.getElementById('slide-zoom-text').innerText = '100%';
+            
+            document.getElementById('presentation-overlay').classList.remove('hidden');
+            document.body.classList.add('presentation-active'); // Chống scroll body
+            renderPresentationSlide();
+            
+            // Thêm lắng nghe sự kiện bàn phím
+            document.addEventListener('keydown', handlePresentationKeys);
+        }
+
+        function closePresentation() {
+            // Thoát fullscreen nếu đang bật
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(err => console.log(err));
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                }
+            }
+            document.getElementById('presentation-overlay').classList.add('hidden');
+            document.body.classList.remove('presentation-active');
+            document.removeEventListener('keydown', handlePresentationKeys);
+        }
+
+        function toggleFullscreen() {
+            const overlay = document.getElementById('presentation-overlay');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (overlay.requestFullscreen) {
+                    overlay.requestFullscreen().catch(err => console.log(err));
+                } else if (overlay.webkitRequestFullscreen) { /* Safari */
+                    overlay.webkitRequestFullscreen();
+                } else if (overlay.msRequestFullscreen) { /* IE11 */
+                    overlay.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        function renderPresentationSlide() {
+            if (presentationSlideIndex < 0 || presentationSlideIndex >= currentLoadedData.length) return;
+            
+            const data = currentLoadedData[presentationSlideIndex];
+            const topic = data['Chủ đề'] || data['Chu de'] || 'Khác';
+            const name = data['Tên công thức'] || data['Ten cong thuc'] || '';
+            const formula = data['Công thức'] || data['Cong thuc'] || '';
+            const example = data['Ví dụ'] || data['Vi du'] || '';
+
+            // Render Title & Icon
+            document.getElementById('slide-icon').innerText = getTopicIcon(topic);
+            document.getElementById('slide-topic-text').innerText = topic;
+            document.getElementById('slide-name').innerText = name;
+            
+            // Render Math Formula & Example
+            const formulaEl = document.getElementById('slide-formula');
+            formulaEl.innerHTML = formatMath(formula);
+            
+            const exampleContainer = document.getElementById('slide-example-container');
+            const exampleEl = document.getElementById('slide-example');
+            
+            if (example && example.trim() !== '') {
+                exampleContainer.classList.remove('hidden');
+                exampleEl.innerHTML = formatMath(example);
+            } else {
+                exampleContainer.classList.add('hidden');
+            }
+
+            // Update Counter & Progress Bar
+            document.getElementById('slide-counter').innerText = `${presentationSlideIndex + 1} / ${currentLoadedData.length}`;
+            const progressPercent = ((presentationSlideIndex + 1) / currentLoadedData.length) * 100;
+            document.getElementById('slide-progress').style.width = `${progressPercent}%`;
+
+            // Yêu cầu MathJax render lại công thức cho các thẻ vừa thay đổi HTML
+            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                MathJax.typesetPromise([formulaEl, exampleEl]).catch(err => console.error(err));
+            }
+        }
+
+        function nextSlide() {
+            if (presentationSlideIndex < currentLoadedData.length - 1) {
+                presentationSlideIndex++;
+                renderPresentationSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (presentationSlideIndex > 0) {
+                presentationSlideIndex--;
+                renderPresentationSlide();
+            }
+        }
+
+        function handlePresentationKeys(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'Escape') {
+                closePresentation();
+            } else if (e.key.toLowerCase() === 'f') {
+                toggleFullscreen();
+            } else if (e.key === '=' || e.key === '+') {
+                changePresentationZoom(0.1);
+            } else if (e.key === '-' || e.key === '_') {
+                changePresentationZoom(-0.1);
+            }
+        }
+
     </script>
 </body>
 </html>
