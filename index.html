@@ -309,10 +309,58 @@
                 <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-full shadow-md text-sm">🖨️ In / Xuất PDF ngay</button>
             </div>
             
+            <!-- --- MENU TẠO PROMPT THÔNG MINH (MỚI) --- -->
+            <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm">
+                <div class="flex justify-between items-center cursor-pointer select-none" onclick="togglePanel('panel-prompt', 'icon-prompt')">
+                    <h3 class="text-sm font-bold text-indigo-700 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 112 0v1a1 1 0 11-2 0zM13.536 14.95a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0zM10 8a2 2 0 100 4 2 2 0 000-4z"></path></svg>
+                        Menu Tạo Prompt Thông Minh (Dành cho AI)
+                    </h3>
+                    <svg id="icon-prompt" class="w-5 h-5 text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </div>
+                <div id="panel-prompt" class="mt-3 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Môn học:</label>
+                            <select id="prompt-subject" class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                                <option value="Toán học">Toán học</option>
+                                <option value="Vật lý">Vật lý</option>
+                                <option value="Hóa học">Hóa học</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Khối lớp:</label>
+                            <select id="prompt-grade" class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                                <option value="Lớp 10">Lớp 10</option>
+                                <option value="Lớp 11">Lớp 11</option>
+                                <option value="Lớp 12">Lớp 12</option>
+                                <option value="Ôn thi THPT Quốc gia">Ôn thi THPT Quốc gia</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-indigo-600 mb-1">Chủ đề cần sinh:</label>
+                            <input type="text" id="prompt-topic" placeholder="Ví dụ: Đạo hàm, Hình học không gian..." class="w-full border border-indigo-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-400">
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button onclick="generateAdvancedPrompt()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition shadow-md flex-1">
+                            ✨ Tạo Prompt Chuyên Gia
+                        </button>
+                        <button id="copy-advanced-btn" onclick="copyAdvancedPrompt()" class="hidden bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-6 rounded-lg text-sm transition shadow-sm">
+                            📋 Copy Prompt
+                        </button>
+                    </div>
+                    <div id="advanced-prompt-result" class="hidden mt-4 bg-white p-3 rounded-lg border border-indigo-100 text-[11px] text-gray-700 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto shadow-inner"></div>
+                </div>
+            </div>
+
             <!-- --- BỘ ĐIỀU KHIỂN GIAO DIỆN & FONT CHỮ --- -->
             <div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
-                <h3 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">⚙️ Thiết lập hiển thị (Font, Màu, Cỡ chữ)</h3>
-                <div class="flex flex-wrap gap-4 items-end">
+                <div class="flex justify-between items-center cursor-pointer select-none border-b pb-2 mb-3" onclick="togglePanel('panel-display', 'icon-display')">
+                    <h3 class="text-sm font-bold text-gray-700">⚙️ Thiết lập hiển thị (Font, Màu, Cỡ chữ)</h3>
+                    <svg id="icon-display" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </div>
+                <div id="panel-display" class="flex flex-wrap gap-4 items-end">
                     
                     <!-- Font chữ (Mới) -->
                     <div>
@@ -352,8 +400,8 @@
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">📄 Giấy / Số cột:</label>
                         <select id="orientation-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyOrientation()">
+                            <option value="portrait-1" selected>Dọc (1 cột dễ đọc)</option>
                             <option value="portrait">Dọc (2 cột siêu khít)</option>
-                            <option value="portrait-1">Dọc (1 cột dễ đọc)</option>
                             <option value="landscape">Ngang (2 cột rộng rãi)</option>
                         </select>
                     </div>
@@ -362,31 +410,40 @@
 
             <!-- Cài đặt tài liệu in (Tên, Lớp, Footer) -->
             <div class="mt-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                <h3 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">📝 Tùy chỉnh thông tin phiếu in</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tiêu đề tài liệu</label>
-                        <input type="text" id="input-title" value="BẢNG TỔNG HỢP CÔNG THỨC TOÁN HỌC" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                <div class="flex justify-between items-center cursor-pointer select-none border-b pb-2 mb-3" onclick="togglePanel('panel-info', 'icon-info')">
+                    <h3 class="text-sm font-bold text-gray-700">📝 Tùy chỉnh thông tin phiếu in</h3>
+                    <svg id="icon-info" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </div>
+                <div id="panel-info">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Tiêu đề tài liệu</label>
+                            <input type="text" id="input-title" value="BẢNG TỔNG HỢP CÔNG THỨC TOÁN HỌC" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Chân trang (Footer)</label>
+                            <input type="text" id="input-footer" value="Tài liệu lưu hành nội bộ - Chúc các em thi tốt!" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Điền Tên Học Sinh (Để trống = viết tay)</label>
+                            <input type="text" id="input-student" placeholder="Nhập tên..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Lớp</label>
+                            <input type="text" id="input-class" placeholder="Nhập lớp..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Chữ ký mờ (Watermark)</label>
+                            <input type="text" id="input-watermark" placeholder="TÀI LIỆU NỘI BỘ..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                        <div class="flex items-center mt-5">
+                            <input type="checkbox" id="check-add-note" onchange="applyTheme()" checked class="w-4 h-4 text-blue-600 rounded">
+                            <label for="check-add-note" class="ml-2 text-xs font-semibold text-gray-600">Bật cột có kẻ dòng "Ghi chú"</label>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Chân trang (Footer)</label>
-                        <input type="text" id="input-footer" value="Tài liệu lưu hành nội bộ - Chúc các em thi tốt!" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Điền Tên Học Sinh (Để trống = viết tay)</label>
-                        <input type="text" id="input-student" placeholder="Nhập tên..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Lớp</label>
-                        <input type="text" id="input-class" placeholder="Nhập lớp..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Chữ ký mờ (Watermark)</label>
-                        <input type="text" id="input-watermark" placeholder="TÀI LIỆU NỘI BỘ..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
-                    </div>
-                    <div class="flex items-center mt-5">
-                        <input type="checkbox" id="check-add-note" onchange="applyTheme()" checked class="w-4 h-4 text-blue-600 rounded">
-                        <label for="check-add-note" class="ml-2 text-xs font-semibold text-gray-600">Bật cột có kẻ dòng "Ghi chú"</label>
+                    <!-- Hướng dẫn bật đánh số trang -->
+                    <div class="mt-4 text-xs text-blue-700 bg-blue-100 p-2.5 rounded-lg border border-blue-200 leading-relaxed shadow-inner">
+                        💡 <b>Mẹo đánh số trang tự động:</b> Trình duyệt không cho phép code tự tính toán trang. Để hiện số trang tự động <i>(vd: Trang 1, 2...)</i> ở góc giấy, khi cửa sổ in hiện ra, bạn hãy mở phần <b>"Cài đặt khác" (More settings)</b> và tích chọn <b>"Tiêu đề và chân trang" (Headers and footers)</b>.
                     </div>
                 </div>
             </div>
@@ -430,6 +487,19 @@
         let currentLoadedData = [];
         let currentBaseFontSize = 9.5; // Kích thước chữ mặc định (đơn vị pt)
 
+        // --- HÀM ẨN HIỆN PANEL ---
+        function togglePanel(panelId, iconId) {
+            const panel = document.getElementById(panelId);
+            const icon = document.getElementById(iconId);
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                panel.classList.add('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
         // --- CẬP NHẬT FONT VÀ SIZE CHỮ ---
         function applyFontSettings() {
             const fontVal = document.getElementById('font-select').value;
@@ -458,22 +528,38 @@
 
         // --- ĐỒNG BỘ TIÊU ĐỀ ---
         function updatePrintInfo() {
-            document.getElementById('display-title').innerText = document.getElementById('input-title').value;
-            document.getElementById('display-footer').innerText = document.getElementById('input-footer').value;
+            const titleInput = document.getElementById('input-title');
+            const footerInput = document.getElementById('input-footer');
+            const studentInput = document.getElementById('input-student');
+            const classInput = document.getElementById('input-class');
+            const watermarkInput = document.getElementById('input-watermark');
 
-            let stuName = document.getElementById('input-student').value;
-            let stuClass = document.getElementById('input-class').value;
-            document.getElementById('display-student').innerHTML = stuName ? `&nbsp;${stuName}` : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-            document.getElementById('display-class').innerHTML = stuClass ? `&nbsp;${stuClass}` : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            if (titleInput) document.getElementById('display-title').innerText = titleInput.value;
+            if (footerInput) document.getElementById('display-footer').innerText = footerInput.value;
 
-            let watermarkText = document.getElementById('input-watermark').value;
-            let watermarkEl = document.getElementById('watermark-display');
-            watermarkEl.innerText = watermarkText;
-            watermarkEl.style.display = watermarkText ? '' : 'none';
+            if (studentInput) {
+                let stuName = studentInput.value;
+                document.getElementById('display-student').innerHTML = stuName ? `&nbsp;${stuName}` : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            }
+            if (classInput) {
+                let stuClass = classInput.value;
+                document.getElementById('display-class').innerHTML = stuClass ? `&nbsp;${stuClass}` : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            }
+
+            if (watermarkInput) {
+                let watermarkText = watermarkInput.value;
+                let watermarkEl = document.getElementById('watermark-display');
+                watermarkEl.innerText = watermarkText;
+                watermarkEl.style.display = watermarkText ? '' : 'none';
+            }
         }
 
         function syncInputTitle() {
-            document.getElementById('input-title').value = document.getElementById('display-title').innerText;
+            const displayTitle = document.getElementById('display-title');
+            const inputTitle = document.getElementById('input-title');
+            if (displayTitle && inputTitle) {
+                inputTitle.value = displayTitle.innerText;
+            }
         }
 
         updatePrintInfo(); // Khởi tạo lần đầu
@@ -660,6 +746,49 @@
             }
         }
 
+        // --- HÀM TẠO PROMPT AI CHUYÊN NGHIỆP ---
+        function generateAdvancedPrompt() {
+            const subject = document.getElementById('prompt-subject').value;
+            const grade = document.getElementById('prompt-grade').value;
+            const topic = document.getElementById('prompt-topic').value || "[Chủ đề cụ thể]";
+            
+            const advancedPrompt = `Hãy đóng vai một chuyên gia giáo dục và biên soạn tài liệu học thuật. 
+Hãy tạo cho tôi một bảng tổng hợp kiến thức đầy đủ, tinh gọn và hiệu quả nhất cho môn ${subject}, ${grade}.
+
+CHỦ ĐỀ CẦN TỔNG HỢP: ${topic}
+
+YÊU CẦU ĐỊNH DẠNG:
+Hãy xuất kết quả dưới dạng bảng Markdown có chính xác 4 cột: "Chủ đề" | "Tên công thức" | "Công thức" | "Ví dụ".
+
+QUY TẮC NỘI DUNG (QUAN TRỌNG):
+1. Cột "Chủ đề": Phân chia kiến thức thành các mảng logic (ví dụ: 1. Đạo hàm hàm số, 2. Đạo hàm lượng giác...).
+2. Cột "Tên công thức": Tên ngắn gọn của công thức hoặc định lý.
+3. Cột "Công thức": Viết bằng cú pháp LaTeX chuẩn, kẹp trong cặp dấu $ $. Ví dụ: $\\frac{a}{b}$.
+4. Cột "Ví dụ": Viết ví dụ áp dụng ngắn gọn nhất, cũng sử dụng LaTeX trong $ $.
+5. Nếu một ô cần xuống dòng, bắt buộc sử dụng thẻ <br> thay vì phím Enter.
+6. Nội dung phải cực kỳ tinh gọn, chỉ bao gồm những gì quan trọng nhất để ôn thi và tra cứu nhanh.
+
+Mục tiêu là sau khi tôi copy bảng này vào Excel và tải lên công cụ của mình, nó sẽ hiển thị hoàn hảo trên khổ giấy A4.`;
+
+            const resultDiv = document.getElementById('advanced-prompt-result');
+            resultDiv.innerText = advancedPrompt;
+            resultDiv.classList.remove('hidden');
+            document.getElementById('copy-advanced-btn').classList.remove('hidden');
+            
+            showMessage("✨ Đã sinh Prompt xong! Bạn hãy copy và dán vào AI nhé.");
+        }
+
+        function copyAdvancedPrompt() {
+            const promptText = document.getElementById('advanced-prompt-result').innerText;
+            const el = document.createElement('textarea');
+            el.value = promptText;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showMessage("📋 Đã copy Prompt vào bộ nhớ tạm!");
+        }
+
         function loadSampleData() { renderData(sampleData); showMessage("Đã tải dữ liệu mẫu!"); }
 
         document.getElementById('excel-file').addEventListener('change', function(e) {
@@ -696,6 +825,10 @@
         
         // Cài đặt cấu hình mặc định (Font và hướng giấy) lúc đầu
         applyFontSettings();
+        applyOrientation();
+        
+        // Khởi tạo trạng thái icon cho panel bị ẩn (Prompt)
+        document.getElementById('icon-prompt').style.transform = 'rotate(180deg)';
     </script>
 </body>
 </html>
