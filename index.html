@@ -45,11 +45,25 @@
             .no-print {
                 display: none !important;
             }
+            
+            /* RESET wrapper và hiệu ứng zoom khi in thật để tránh lỗi mất dữ liệu */
+            #print-area-wrapper {
+                padding: 0 !important;
+                min-height: auto !important;
+                display: block !important;
+                width: 100% !important;
+            }
             #print-area {
                 column-count: 2; /* Chia 2 cột khi in */
                 column-gap: 12px; /* Giảm khe hở giữa 2 cột */
-                padding: 0;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                transform: none !important; /* QUAN TRỌNG: Xóa scale khi in */
+                box-shadow: none !important;
+                min-height: auto !important;
             }
+
             .topic-group {
                 break-inside: auto; /* Cho phép tách khối để lấp đầy khoảng trắng của cột */
                 margin-bottom: 8px;
@@ -160,6 +174,26 @@
         .data-table th, .data-table td {
             border: 1px solid #e5e7eb;
         }
+
+        /* Cấu hình chế độ giấy ngang */
+        body.landscape-mode.preview-active #print-area {
+            width: 297mm !important;
+            min-height: 210mm !important;
+            column-count: 3 !important; /* Dàn 3 cột cho giấy ngang */
+        }
+
+        /* Cấu hình chế độ giấy dọc 1 cột */
+        body.portrait-1-mode.preview-active #print-area {
+            column-count: 1 !important;
+        }
+    </style>
+
+    <!-- Style động để điều khiển hướng giấy in -->
+    <style id="dynamic-print-style">
+        @media print {
+            @page { size: A4 portrait; margin: 12mm 8mm 15mm 8mm; }
+            #print-area { column-count: 2 !important; }
+        }
     </style>
 </head>
 <body class="bg-blue-50 text-gray-800 font-sans min-h-screen">
@@ -187,7 +221,7 @@
         <!-- Khối phải: Hành động -->
         <div class="flex items-center justify-end space-x-3 w-1/3">
             <button onclick="togglePreview()" class="px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-700 transition">Hủy</button>
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-1.5 rounded text-sm font-medium shadow transition flex items-center">
+            <button onclick="triggerPrint()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-1.5 rounded text-sm font-medium shadow transition flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 In tài liệu
             </button>
@@ -222,6 +256,9 @@
                         Tải dữ liệu
                     </button>
                     <p class="text-xs text-gray-500 mt-2">Lưu ý: Sheet cần được cấp quyền "Bất kỳ ai có liên kết".</p>
+                </div>
+            </div>
+
             <div class="mt-6 flex flex-wrap justify-center gap-3">
                 <button onclick="loadSampleData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-5 rounded-full transition duration-200 flex items-center text-sm">
                     Tải dữ liệu mẫu
@@ -229,27 +266,38 @@
                 <button onclick="togglePreview()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-200 flex items-center text-sm">
                     👁️ Xem trước bản in
                 </button>
-                <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-200 flex items-center text-sm">
+                <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-200 flex items-center text-sm">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     In / Xuất PDF
                 </button>
             </div>
             
             <!-- Trình chọn Giao diện in -->
-            <div class="mt-5 flex items-center justify-center space-x-3 border-t pt-4 border-gray-100">
-                <label class="text-sm font-semibold text-gray-700">🎨 Giao diện in:</label>
-                <select id="theme-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
-                    <option value="blue">Xanh Pastel (Chuẩn)</option>
-                    <option value="colorful">Đa sắc (Từng chủ đề 1 màu)</option>
-                    <option value="mono">Đen trắng (Tiết kiệm mực)</option>
-                    <option value="pink">🌸 Hồng Sakura (Đáng yêu)</option>
-                    <option value="yellow">☀️ Vàng Nắng Mai (Năng động)</option>
-                    <option value="green">🌿 Xanh Thiên Nhiên (Dịu mắt)</option>
-                    <option value="purple">🔮 Tím Mộng Mơ (Sáng tạo)</option>
-                    <option value="indigo">🌌 Xanh Indigo (Hiện đại)</option>
-                    <option value="ocean">🌊 Gradient Biển Cả</option>
-                    <option value="sunset">🌅 Gradient Hoàng Hôn</option>
-                </select>
+            <div class="mt-5 flex items-center justify-center space-x-3 border-t pt-4 border-gray-100 flex-wrap gap-y-3">
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-semibold text-gray-700">🎨 Giao diện:</label>
+                    <select id="theme-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
+                        <option value="blue">Xanh Pastel (Chuẩn)</option>
+                        <option value="colorful">Đa sắc (Từng chủ đề 1 màu)</option>
+                        <option value="mono">Đen trắng (Tiết kiệm mực)</option>
+                        <option value="pink">🌸 Hồng Sakura (Đáng yêu)</option>
+                        <option value="yellow">☀️ Vàng Nắng Mai (Năng động)</option>
+                        <option value="green">🌿 Xanh Thiên Nhiên (Dịu mắt)</option>
+                        <option value="purple">🔮 Tím Mộng Mơ (Sáng tạo)</option>
+                        <option value="indigo">🌌 Xanh Indigo (Hiện đại)</option>
+                        <option value="ocean">🌊 Gradient Biển Cả</option>
+                        <option value="sunset">🌅 Gradient Hoàng Hôn</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center space-x-2 ml-0 sm:ml-4">
+                    <label class="text-sm font-semibold text-gray-700">📄 Hướng giấy:</label>
+                    <select id="orientation-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyOrientation()">
+                        <option value="portrait">Dọc (Portrait - 2 cột)</option>
+                        <option value="portrait-1">Dọc 1 cột (Dễ đọc hơn)</option>
+                        <option value="landscape">Ngang (Landscape - 3 cột)</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Cài đặt tài liệu in -->
@@ -376,6 +424,40 @@ QUY TẮC QUAN TRỌNG:
             }
         }
 
+        // Hàm thay đổi hướng giấy
+        function applyOrientation() {
+            const mode = document.getElementById('orientation-select').value;
+            const styleEl = document.getElementById('dynamic-print-style');
+            
+            // Xóa các class cũ
+            document.body.classList.remove('landscape-mode', 'portrait-1-mode');
+            
+            if (mode === 'landscape') {
+                document.body.classList.add('landscape-mode');
+                styleEl.innerHTML = `
+                    @media print {
+                        @page { size: A4 landscape; margin: 10mm 8mm 12mm 8mm; }
+                        #print-area { column-count: 3 !important; }
+                    }
+                `;
+            } else if (mode === 'portrait-1') {
+                document.body.classList.add('portrait-1-mode');
+                styleEl.innerHTML = `
+                    @media print {
+                        @page { size: A4 portrait; margin: 12mm 8mm 15mm 8mm; }
+                        #print-area { column-count: 1 !important; }
+                    }
+                `;
+            } else {
+                styleEl.innerHTML = `
+                    @media print {
+                        @page { size: A4 portrait; margin: 12mm 8mm 15mm 8mm; }
+                        #print-area { column-count: 2 !important; }
+                    }
+                `;
+            }
+        }
+
         // --- HÀM XỬ LÝ CHÍNH VÀ ZOOM ---
 
         let previewZoom = 1;
@@ -415,6 +497,27 @@ QUY TẮC QUAN TRỌNG:
             } else {
                 controls.classList.add('hidden');
                 controls.classList.remove('flex');
+            }
+        }
+
+        // --- HÀM IN TÀI LIỆU AN TOÀN ---
+        function triggerPrint() {
+            // Kiểm tra nếu chưa có dữ liệu
+            if (!currentLoadedData || currentLoadedData.length === 0) {
+                showMessage("⚠️ Lỗi: Không có dữ liệu để in! Hãy tải dữ liệu mẫu hoặc file Excel của bạn trước.", true);
+                return;
+            }
+
+            // Đợi công thức toán học MathJax chạy xong rồi mới kích hoạt in
+            if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                MathJax.typesetPromise().then(() => {
+                    window.print();
+                }).catch((err) => {
+                    console.error('Lỗi render Toán:', err);
+                    window.print(); // Vẫn in nếu có lỗi phát sinh
+                });
+            } else {
+                window.print();
             }
         }
 
@@ -639,9 +742,9 @@ QUY TẮC QUAN TRỌNG:
         }
 
         // Khởi tạo mặc định
-        window.onload = () => {
-            loadSampleData();
-        };
+        // window.onload = () => {
+        //     loadSampleData(); // Tạm tắt tự động tải để bạn test chức năng báo lỗi khi bảng trống
+        // };
 
     </script>
 </body>
