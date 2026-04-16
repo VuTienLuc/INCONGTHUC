@@ -8,7 +8,12 @@
     <!-- Tailwind CSS cho giao diện -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Cấu hình và tải MathJax thay cho KaTeX -->
+    <!-- Tích hợp các Font chữ đẹp tiếng Việt từ Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@400;600;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Cấu hình và tải MathJax -->
     <script>
         MathJax = {
             tex: {
@@ -23,32 +28,35 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <!-- SheetJS để đọc file Excel -->
+    <!-- SheetJS và PapaParse -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    
-    <!-- PapaParse để đọc CSV từ Google Sheets -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
-        /* Tối ưu hóa cho bản in A4 */
+        /* --- BIẾN CSS ĐIỀU KHIỂN FONT CHỮ VÀ SIZE CHỮ --- */
+        :root {
+            --print-font-family: 'Arial', sans-serif;
+            --print-font-size: 9.5pt;
+            --print-line-height: 1.15;
+        }
+
+        /* Tối ưu hóa cho bản in A4 - ĐỘ DÃN DÒNG NHỎ NHẤT */
         @media print {
             @page {
                 size: A4;
-                margin: 12mm 8mm 15mm 8mm; /* Giảm lề giấy để tận dụng tối đa diện tích */
+                margin: 10mm 6mm 12mm 6mm; /* Ép lề siêu nhỏ */
             }
             body {
                 background: white;
                 color: black;
-                font-size: 9.5pt; /* Thu nhỏ chữ một chút */
-                line-height: 1.3; /* Ép khoảng cách dòng */
-                -webkit-print-color-adjust: exact !important; /* Đảm bảo in đủ màu giống preview */
+                font-family: var(--print-font-family) !important;
+                -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
             }
             .no-print {
                 display: none !important;
             }
             
-            /* RESET wrapper và hiệu ứng zoom khi in thật để tránh lỗi mất dữ liệu */
             #print-area-wrapper {
                 padding: 0 !important;
                 min-height: auto !important;
@@ -56,58 +64,85 @@
                 width: 100% !important;
             }
             #print-area {
-                column-count: 2; /* Chia 2 cột khi in */
-                column-gap: 12px; /* Giảm khe hở giữa 2 cột */
+                column-count: 2; 
+                column-gap: 10px; /* Thu hẹp khe hở cột */
                 padding: 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
-                transform: none !important; /* QUAN TRỌNG: Xóa scale khi in */
+                transform: none !important; 
                 box-shadow: none !important;
                 min-height: auto !important;
+                font-family: var(--print-font-family) !important;
             }
 
             .topic-group {
-                break-inside: auto; /* Cho phép tách khối để lấp đầy khoảng trắng của cột */
-                margin-bottom: 8px;
-                /* Giữ nguyên viền cong khi in */
+                break-inside: auto; 
+                margin-bottom: 4px !important; /* Dãn dòng nhỏ nhất giữa các nhóm */
             }
             .theme-header {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                break-after: avoid; /* Không ngắt trang giữa tiêu đề và bảng */
+                break-after: avoid; 
+                padding: 2px 4px !important; /* Ép lề tiêu đề nhỏ */
             }
             table {
                 width: 100%;
                 border-collapse: collapse;
                 margin-bottom: 0;
+                table-layout: fixed; /* GIẢI PHÁP 1: Ép khung bảng cố định, cấm phình to tràn lề */
             }
             tr {
-                break-inside: avoid; /* Chỉ chống cắt nửa chừng 1 hàng công thức */
+                break-inside: avoid; 
                 page-break-inside: avoid;
             }
             th, td {
-                border: 1px solid #9ca3af !important; /* Đổi sang viền xám nhạt cho thanh lịch, dễ nhìn */
-                padding: 4px 5px !important; /* Ép padding siêu mỏng */
+                border: 1px solid #9ca3af !important; 
+                padding: 2px 3px !important; /* Dãn dòng cực đại: Lề trong ô chỉ 2px */
                 text-align: left;
+                word-wrap: break-word; /* GIẢI PHÁP 2: Chữ tự bẻ dòng nếu quá dài */
+                overflow-wrap: break-word;
             }
-            /* Ép MathJax bớt khoảng trống thừa ở dạng display ($$) */
+            
+            /* Áp dụng Size chữ động cho nội dung bảng */
+            .content-cell {
+                font-size: var(--print-font-size) !important;
+                line-height: var(--print-line-height) !important;
+            }
+
+            /* GIẢI PHÁP 3: Xử lý công thức Toán quá dài */
+            mjx-container {
+                max-width: 100% !important;
+                overflow-x: hidden !important; /* Ẩn đi phần dư thừa nếu không thể bẻ dòng khi in */
+            }
+            mjx-math {
+                white-space: normal !important; /* Buộc công thức Toán tự bẻ xuống dòng */
+            }
+
+            /* Ép MathJax bớt khoảng trống thừa tuyệt đối */
             mjx-container[display="true"] {
-                margin: 2px 0 !important;
+                margin: 1px 0 !important;
+                padding: 0 !important;
             }
+            
+            /* Tỉ lệ size chữ theo base size */
             .title-print {
                 text-align: center;
-                font-size: 15pt;
+                font-size: calc(var(--print-font-size) * 1.5) !important;
+                line-height: 1.2 !important;
                 font-weight: bold;
-                margin-bottom: 5px;
+                margin-bottom: 4px;
                 column-span: all;
             }
             .student-info-print {
                 text-align: center;
-                font-size: 11pt;
+                font-size: calc(var(--print-font-size) * 1.1) !important;
                 font-weight: 500;
-                margin-bottom: 15px;
+                margin-bottom: 8px;
                 column-span: all;
                 -webkit-column-span: all;
+            }
+            .theme-header h3, .theme-header span {
+                font-size: calc(var(--print-font-size) * 1.1) !important;
             }
             .print-footer {
                 position: fixed;
@@ -116,25 +151,27 @@
                 width: 100%;
                 border-top: 1px dashed #9ca3af;
                 padding-top: 4px;
-                font-size: 8.5pt;
+                font-size: calc(var(--print-font-size) * 0.85) !important;
                 color: #4b5563;
                 display: flex !important;
-                justify-content: center; /* Đổi thành center vì đã bỏ fake số trang */
+                justify-content: center; 
                 background: white;
                 -webkit-print-color-adjust: exact;
             }
+            
+            #watermark-display { display: block; }
         }
 
         /* --- CHẾ ĐỘ XEM TRƯỚC (IN-APP PREVIEW) CHUYÊN NGHIỆP --- */
         body.preview-active {
-            background-color: #323639; /* Màu nền xám tối chuẩn trình xem PDF */
+            background-color: #323639; 
         }
         body.preview-active .no-print-preview {
             display: none !important;
         }
         
         body.preview-active #print-area-wrapper {
-            padding-top: 80px; /* Chừa chỗ cho thanh công cụ nổi */
+            padding-top: 80px; 
             padding-bottom: 60px;
             display: flex;
             justify-content: center;
@@ -144,249 +181,228 @@
 
         body.preview-active #print-area {
             width: 210mm;
-            min-height: 297mm; /* Chiều cao tối thiểu 1 trang A4 */
+            min-height: 297mm; 
             margin: 0;
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.4); /* Hiệu ứng nổi 3D chân thực */
-            padding: 15mm 10mm 20mm 10mm;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.4); 
+            padding: 10mm 6mm 12mm 6mm; /* Khớp với lề bản in thực tế */
             column-count: 2;
-            column-gap: 15px;
+            column-gap: 10px;
             position: relative;
             transform: scale(var(--preview-zoom, 1));
             transform-origin: top center;
             transition: transform 0.15s ease-out;
+            font-family: var(--print-font-family);
         }
         
-        body.preview-active .title-print {
-            display: block;
-            column-span: all;
-            margin-bottom: 5px;
-        }
-        body.preview-active .student-info-print {
-            display: block;
-            column-span: all;
-            margin-bottom: 15px;
-        }
+        /* Đồng bộ CSS Xem trước với CSS in thật */
+        body.preview-active .content-cell { font-size: var(--print-font-size); line-height: var(--print-line-height); }
+        body.preview-active .topic-group { margin-bottom: 4px; }
+        body.preview-active th, body.preview-active td { padding: 2px 3px !important; }
+        body.preview-active mjx-container[display="true"] { margin: 1px 0 !important; padding: 0 !important; }
+        body.preview-active .title-print { font-size: calc(var(--print-font-size) * 1.5); margin-bottom: 4px; display: block; column-span: all; }
+        body.preview-active .student-info-print { font-size: calc(var(--print-font-size) * 1.1); margin-bottom: 8px; display: block; column-span: all; }
+        body.preview-active .theme-header h3, body.preview-active .theme-header span { font-size: calc(var(--print-font-size) * 1.1); padding: 2px 4px; }
+        
         body.preview-active .print-footer {
             display: flex !important;
             position: absolute;
-            bottom: 10mm;
-            left: 10mm;
-            right: 10mm;
+            bottom: 6mm; left: 6mm; right: 6mm;
             width: auto;
             justify-content: center;
+            font-size: calc(var(--print-font-size) * 0.85);
+            border-top: 1px dashed #9ca3af;
+            padding-top: 4px;
         }
+        body.preview-active #watermark-display { display: block; }
 
-        /* Tùy chỉnh thanh cuộn cho màn hình */
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #c5d3e8; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #a3b8d7; }
 
-        /* Style cho bảng hiển thị trên màn hình */
-        .data-table th, .data-table td {
-            border: 1px solid #e5e7eb;
+        .data-table { 
+            width: 100%;
+            table-layout: fixed; /* Ép khung cố định ngoài màn hình preview */
+        }
+        .data-table th, .data-table td { 
+            border: 1px solid #e5e7eb; 
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
-        /* Cấu hình chế độ giấy ngang */
-        body.landscape-mode.preview-active #print-area {
-            width: 297mm !important;
-            min-height: 210mm !important;
-            column-count: 3 !important; /* Dàn 3 cột cho giấy ngang */
+        .math-content mjx-container {
+            max-width: 100%;
+            overflow-x: auto; /* Cho phép cuộn ngang đối với công thức dài trên màn hình */
+            overflow-y: hidden;
         }
 
-        /* Cấu hình chế độ giấy dọc 1 cột */
-        body.portrait-1-mode.preview-active #print-area {
-            column-count: 1 !important;
-        }
+        /* Watermark */
+        #watermark-display { display: none; }
+
+        /* Cấu hình hướng giấy ngang/dọc 1 cột */
+        body.landscape-mode.preview-active #print-area { width: 297mm !important; min-height: 210mm !important; column-count: 2 !important; }
+        body.portrait-1-mode.preview-active #print-area { column-count: 1 !important; }
     </style>
 
-    <!-- Style động để điều khiển hướng giấy in -->
     <style id="dynamic-print-style">
         @media print {
-            @page { size: A4 portrait; margin: 12mm 8mm 15mm 8mm; }
+            @page { size: A4 portrait; margin: 10mm 6mm 12mm 6mm; }
             #print-area { column-count: 2 !important; }
         }
     </style>
 </head>
 <body class="bg-blue-50 text-gray-800 font-sans min-h-screen">
 
-    <!-- Thanh công cụ chế độ xem trước chuyên nghiệp (Ẩn mặc định) -->
+    <!-- Thanh công cụ chế độ xem trước chuyên nghiệp -->
     <div id="preview-controls" class="hidden fixed top-0 left-0 w-full bg-[#323639] text-[#f1f3f4] h-14 z-50 flex-row justify-between items-center px-4 md:px-6 shadow-md border-b border-gray-700 select-none">
-        
-        <!-- Khối trái: Tiêu đề -->
         <div class="flex items-center space-x-3 w-1/3">
             <svg class="w-5 h-5 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span class="text-sm font-medium tracking-wide">Xem trước tài liệu PDF</span>
+            <span class="text-sm font-medium tracking-wide">Xem trước bản in</span>
         </div>
-
-        <!-- Khối giữa: Điều khiển Zoom -->
         <div class="flex items-center space-x-2 bg-[#202124] rounded-lg px-2 py-1 shadow-inner">
-            <button onclick="changeZoom(-0.1)" class="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-white focus:outline-none transition" title="Thu nhỏ">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
-            </button>
+            <button onclick="changeZoom(-0.1)" class="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition" title="Thu nhỏ"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
             <span id="zoom-text" class="text-xs font-mono w-10 text-center text-gray-300">100%</span>
-            <button onclick="changeZoom(0.1)" class="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-white focus:outline-none transition" title="Phóng to">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            </button>
+            <button onclick="changeZoom(0.1)" class="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition" title="Phóng to"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
         </div>
-
-        <!-- Khối phải: Hành động -->
         <div class="flex items-center justify-end space-x-3 w-1/3">
-            <button onclick="togglePreview()" class="px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-700 transition hidden sm:block">Hủy</button>
-            <!-- Nút Tải PDF -->
-            <button onclick="downloadPDF()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-1.5 rounded text-sm font-medium shadow transition flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                <span class="hidden sm:inline">Tải PDF</span>
-            </button>
-            <button onclick="triggerPrint()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-medium shadow transition flex items-center">
-                <svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                <span class="hidden sm:inline">In ngay</span>
-            </button>
+            <button onclick="togglePreview()" class="px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-700 transition hidden sm:block">Đóng</button>
+            <button onclick="downloadPDF()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-1.5 rounded text-sm font-medium shadow transition flex items-center"><svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span class="hidden sm:inline">Tải PDF</span></button>
+            <button onclick="triggerPrint()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-medium shadow transition flex items-center"><svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg><span class="hidden sm:inline">In ngay</span></button>
         </div>
     </div>
 
-    <!-- Phần Control Panel (Ẩn khi in) -->
-    <div class="no-print no-print-preview container mx-auto p-4 max-w-4xl">
+    <!-- Bảng Điều Khiển -->
+    <div class="no-print no-print-preview container mx-auto p-4 max-w-5xl">
         <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-blue-400">
             <h1 class="text-3xl font-bold text-center text-blue-600 mb-2">📚 Trình Tạo Bí Kíp Toán Học A4</h1>
-            <p class="text-center text-gray-500 mb-6 text-sm">Tóm tắt công thức • Siêu dễ thương • Sẵn sàng tải PDF</p>
+            <p class="text-center text-gray-500 mb-6 text-sm">Ép dãn dòng siêu nhỏ • Tùy chỉnh Font • Tối ưu không gian giấy</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Cột Upload Excel -->
+                <!-- Nguồn Excel -->
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
                     <h2 class="font-bold text-blue-700 mb-3 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Tải lên từ file Excel (.xlsx)
+                        Tải lên file Excel (.xlsx)
                     </h2>
                     <input type="file" id="excel-file" accept=".xlsx, .xls" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 cursor-pointer">
-                    <p class="text-xs text-gray-500 mt-2">Cấu trúc cột: <b>Chủ đề</b> | <b>Tên công thức</b> | <b>Công thức</b> | <b>Ví dụ</b></p>
+                    <p class="text-[11px] text-gray-500 mt-2">Cột: <b>Chủ đề</b> | <b>Tên công thức</b> | <b>Công thức</b> | <b>Ví dụ</b></p>
                 </div>
-
-                <!-- Cột Link Google Sheets -->
+                <!-- Nguồn Sheets -->
                 <div class="bg-green-50 p-4 rounded-xl border border-green-100">
                     <h2 class="font-bold text-green-700 mb-3 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                         Lấy từ Google Sheets
                     </h2>
-                    <input type="text" id="gsheet-link" placeholder="Dán link Google Sheets vào đây..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-sm mb-2">
-                    <button onclick="loadFromGoogleSheets()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 text-sm">
-                        Tải dữ liệu
-                    </button>
-                    <p class="text-xs text-gray-500 mt-2">Lưu ý: Sheet cần được cấp quyền "Bất kỳ ai có liên kết".</p>
+                    <div class="flex space-x-2">
+                        <input type="text" id="gsheet-link" placeholder="Dán link Google Sheets..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-sm">
+                        <button onclick="loadFromGoogleSheets()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg text-sm shrink-0">Tải</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Nút Hành động Chính -->
+            <!-- Nút Hành động -->
             <div class="mt-6 flex flex-wrap justify-center gap-3">
-                <button onclick="loadSampleData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-5 rounded-full transition duration-200 flex items-center text-sm">
-                    Tải dữ liệu mẫu
-                </button>
-                <button onclick="togglePreview()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-200 flex items-center text-sm">
-                    👁️ Xem trước bản in
-                </button>
-                <button onclick="downloadPDF()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-200 flex items-center text-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Tải PDF
-                </button>
-                <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-200 flex items-center text-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    In trực tiếp
-                </button>
+                <button onclick="loadSampleData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-5 rounded-full text-sm">Tải dữ liệu mẫu</button>
+                <button onclick="togglePreview()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-5 rounded-full shadow-md text-sm">👁️ Xem trước bản in</button>
+                <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-full shadow-md text-sm">🖨️ In / Xuất PDF ngay</button>
             </div>
             
-            <!-- Trình chọn Giao diện in -->
-            <div class="mt-5 flex items-center justify-center space-x-3 border-t pt-4 border-gray-100 flex-wrap gap-y-3">
-                <div class="flex items-center space-x-2">
-                    <label class="text-sm font-semibold text-gray-700">🎨 Giao diện:</label>
-                    <select id="theme-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
-                        <option value="blue">Xanh Pastel (Chuẩn)</option>
-                        <option value="colorful">Đa sắc (Từng chủ đề 1 màu)</option>
-                        <option value="mono">Đen trắng (Tiết kiệm mực)</option>
-                        <option value="pink">🌸 Hồng Sakura (Đáng yêu)</option>
-                        <option value="yellow">☀️ Vàng Nắng Mai (Năng động)</option>
-                        <option value="green">🌿 Xanh Thiên Nhiên (Dịu mắt)</option>
-                        <option value="purple">🔮 Tím Mộng Mơ (Sáng tạo)</option>
-                        <option value="indigo">🌌 Xanh Indigo (Hiện đại)</option>
-                        <option value="ocean">🌊 Gradient Biển Cả</option>
-                        <option value="sunset">🌅 Gradient Hoàng Hôn</option>
-                    </select>
-                </div>
-                
-                <div class="flex items-center space-x-2 ml-0 sm:ml-4">
-                    <label class="text-sm font-semibold text-gray-700">📄 Hướng giấy:</label>
-                    <select id="orientation-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyOrientation()">
-                        <option value="portrait">Dọc (Portrait - 2 cột)</option>
-                        <option value="portrait-1">Dọc 1 cột (Dễ đọc hơn)</option>
-                        <option value="landscape">Ngang (Landscape - 3 cột)</option>
-                    </select>
+            <!-- --- BỘ ĐIỀU KHIỂN GIAO DIỆN & FONT CHỮ --- -->
+            <div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <h3 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">⚙️ Thiết lập hiển thị (Font, Màu, Cỡ chữ)</h3>
+                <div class="flex flex-wrap gap-4 items-end">
+                    
+                    <!-- Font chữ (Mới) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">🔤 Font chữ tiếng Việt:</label>
+                        <select id="font-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white min-w-[150px]" onchange="applyFontSettings()">
+                            <option value="'Arial', sans-serif">1. Arial (Cơ bản)</option>
+                            <option value="'Times New Roman', serif">2. Times New Roman (Học thuật)</option>
+                            <option value="'Roboto', sans-serif">3. Roboto (Hiện đại)</option>
+                            <option value="'Open Sans', sans-serif">4. Open Sans (Dễ nhìn)</option>
+                            <option value="'Lora', serif">5. Lora (Có chân thanh lịch)</option>
+                            <option value="'Quicksand', sans-serif">6. Quicksand (Bo tròn dễ thương)</option>
+                        </select>
+                    </div>
+
+                    <!-- Size chữ (Mới) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">A± Cỡ chữ (Hiện tại: <span id="font-size-label">9.5pt</span>):</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden h-[34px]">
+                            <button onclick="changeBaseFontSize(-0.5)" class="px-3 hover:bg-gray-100 text-gray-700 font-bold border-r border-gray-200 h-full transition">-</button>
+                            <button onclick="changeBaseFontSize(0.5)" class="px-3 hover:bg-gray-100 text-gray-700 font-bold h-full transition">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Chủ đề màu -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">🎨 Màu sắc:</label>
+                        <select id="theme-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyTheme()">
+                            <option value="blue">Xanh Pastel (Chuẩn)</option>
+                            <option value="colorful">Đa sắc (Phân biệt mảng)</option>
+                            <option value="mono">Đen trắng (Tiết kiệm mực)</option>
+                            <option value="pink">Hồng Sakura</option>
+                            <option value="ocean">Gradient Biển</option>
+                        </select>
+                    </div>
+
+                    <!-- Hướng giấy -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">📄 Giấy / Số cột:</label>
+                        <select id="orientation-select" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-white" onchange="applyOrientation()">
+                            <option value="portrait">Dọc (2 cột siêu khít)</option>
+                            <option value="portrait-1">Dọc (1 cột dễ đọc)</option>
+                            <option value="landscape">Ngang (2 cột rộng rãi)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <!-- Cài đặt tài liệu in (Bao gồm Tên & Lớp) -->
-            <div class="mt-5 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                <h3 class="text-sm font-bold text-gray-700 mb-3">📝 Tùy chỉnh thông tin bản in</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+            <!-- Cài đặt tài liệu in (Tên, Lớp, Footer) -->
+            <div class="mt-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <h3 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">📝 Tùy chỉnh thông tin phiếu in</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Tiêu đề tài liệu</label>
-                        <input type="text" id="input-title" value="BẢNG TỔNG HỢP CÔNG THỨC TOÁN HỌC" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400">
+                        <input type="text" id="input-title" value="BẢNG TỔNG HỢP CÔNG THỨC TOÁN HỌC" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nội dung chân trang (Footer)</label>
-                        <input type="text" id="input-footer" value="Tài liệu lưu hành nội bộ - Chúc các em thi tốt!" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400">
-                    </div>
-                </div>
-                <!-- Dòng ghi Tên & Lớp -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 pt-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Điền sẵn Tên (Tùy chọn)</label>
-                        <input type="text" id="input-student" placeholder="Nhập tên học sinh..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400">
-                        <p class="text-[10px] text-gray-500 mt-1">Để trống hệ thống sẽ in thành dòng kẻ chấm <code>.....</code></p>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Chân trang (Footer)</label>
+                        <input type="text" id="input-footer" value="Tài liệu lưu hành nội bộ - Chúc các em thi tốt!" oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Điền sẵn Lớp (Tùy chọn)</label>
-                        <input type="text" id="input-class" placeholder="Nhập lớp..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Điền Tên Học Sinh (Để trống = viết tay)</label>
+                        <input type="text" id="input-student" placeholder="Nhập tên..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
                     </div>
-                </div>
-                <!-- Hướng dẫn bật đánh số trang -->
-                <div class="mt-4 text-xs text-blue-700 bg-blue-100 p-2.5 rounded-lg border border-blue-200 leading-relaxed shadow-inner">
-                    💡 <b>Mẹo đánh số trang tự động:</b> Trình duyệt không cho phép code tự tính toán trang. Để hiện số trang tự động <i>(vd: Trang 1, 2...)</i> ở góc giấy, khi cửa sổ in hiện ra, bạn hãy mở phần <b>"Cài đặt khác" (More settings)</b> và tích chọn <b>"Tiêu đề và chân trang" (Headers and footers)</b>.
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Lớp</label>
+                        <input type="text" id="input-class" placeholder="Nhập lớp..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Chữ ký mờ (Watermark)</label>
+                        <input type="text" id="input-watermark" placeholder="TÀI LIỆU NỘI BỘ..." oninput="updatePrintInfo()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                    <div class="flex items-center mt-5">
+                        <input type="checkbox" id="check-add-note" onchange="applyTheme()" checked class="w-4 h-4 text-blue-600 rounded">
+                        <label for="check-add-note" class="ml-2 text-xs font-semibold text-gray-600">Bật cột có kẻ dòng "Ghi chú"</label>
+                    </div>
                 </div>
             </div>
 
             <div id="status-message" class="text-center mt-3 text-sm font-medium text-red-500 hidden"></div>
         </div>
-        
-        <!-- Khối Prompt hỗ trợ AI -->
-        <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 text-sm text-indigo-800 rounded mb-4 shadow-sm">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
-                <strong>🤖 Mẫu lệnh nhờ AI (ChatGPT/Gemini) tạo bảng:</strong>
-                <button onclick="copyPrompt()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded text-xs font-bold shadow transition flex items-center">
-                    📋 Copy Prompt
-                </button>
-            </div>
-            <p class="text-xs mb-2 text-indigo-600">Gửi mẫu lệnh này cho AI để lấy dữ liệu chuẩn, sau đó dán thẳng vào Excel:</p>
-            <div class="bg-white p-3 rounded border border-indigo-200 text-xs font-mono text-gray-700 whitespace-pre-wrap">Tạo bảng tổng hợp công thức Toán về chủ đề: [ĐIỀN CHỦ ĐỀ VÀO ĐÂY].
-
-Bảng gồm chính xác 4 cột: "Chủ đề" | "Tên công thức" | "Công thức" | "Ví dụ".
-
-QUY TẮC QUAN TRỌNG:
-1. Cột "Công thức" và "Ví dụ" phải viết bằng cú pháp LaTeX kẹp giữa 2 dấu đô la. Ví dụ: $\frac{a}{b}$ hoặc $\sin x$.
-2. Không dùng dấu ngoặc vuông \[ \] hay đô la kép $$.
-3. Nếu cần xuống dòng trong 1 ô, bắt buộc dùng thẻ &lt;br&gt;.
-4. Xuất kết quả dạng bảng Markdown để copy trực tiếp vào Excel.</div>
-        </div>
-
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-sm text-yellow-800 rounded mb-4">
-            <strong>Mẹo nhập liệu:</strong> Để công thức toán hiển thị đẹp, hãy đặt trong cặp dấu đô-la. Ví dụ: <code>$\frac{a}{b} = c$</code>. Dùng <code>&lt;br&gt;</code> để xuống dòng.
-        </div>
     </div>
 
-    <!-- Vùng hiển thị nội dung (Sẽ được in ra) - Đã được bọc thêm wrapper để xử lý Zoom -->
+    <!-- Watermark -->
+    <div id="watermark-display" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-45 text-[50pt] md:text-[70pt] font-black text-gray-300 opacity-20 pointer-events-none z-50 whitespace-nowrap select-none"></div>
+
+    <!-- Vùng hiển thị nội dung để In -->
     <div id="print-area-wrapper" class="w-full">
-        <div id="print-area" class="container mx-auto p-4 max-w-5xl bg-white min-h-screen shadow-xl print:shadow-none mb-10 print:mb-0 relative">
+        <div id="print-area" class="container mx-auto bg-white min-h-screen shadow-xl print:shadow-none mb-10 print:mb-0 relative text-gray-800">
             
-            <div id="display-title" class="title-print hidden print:block text-center font-bold text-xl mb-2 uppercase outline-none" contenteditable="true" onblur="syncInputTitle()">BẢNG TỔNG HỢP CÔNG THỨC TOÁN HỌC</div>
+            <div id="display-title" class="title-print hidden print:block text-center uppercase outline-none" contenteditable="true" onblur="syncInputTitle()">BẢNG TỔNG HỢP CÔNG THỨC TOÁN HỌC</div>
             
             <!-- Khu vực hiển thị Tên và Lớp -->
             <div class="student-info-print hidden print:block text-gray-700">
@@ -397,88 +413,82 @@ QUY TẮC QUAN TRỌNG:
                 <span id="display-class" class="inline-block border-b border-dashed border-gray-400 w-24 text-left text-blue-800"></span>
             </div>
             
-            <div id="content-container" class="print:column-count-2 print:column-gap-4 space-y-6 print:space-y-0 print:pb-10">
-                <!-- Nội dung sẽ được render vào đây -->
-                <div class="text-center text-gray-400 py-10 no-print italic">
-                    Chưa có dữ liệu. Vui lòng tải file Excel, nhập link Google Sheets hoặc nhấn "Tải dữ liệu mẫu".
+            <div id="content-container" class="print:column-count-2 print:column-gap-4 space-y-4 print:space-y-0 print:pb-10">
+                <div class="text-center text-gray-400 py-10 no-print italic content-cell">
+                    Chưa có dữ liệu...
                 </div>
             </div>
 
             <!-- Chân trang khi in -->
-            <div class="print-footer hidden print:flex">
+            <div class="print-footer hidden print:flex content-cell">
                 <span id="display-footer" class="font-medium text-center">Tài liệu lưu hành nội bộ - Chúc các em thi tốt!</span>
             </div>
         </div>
     </div>
 
     <script>
-        // Lưu trữ dữ liệu hiện tại để render lại khi đổi theme
         let currentLoadedData = [];
+        let currentBaseFontSize = 9.5; // Kích thước chữ mặc định (đơn vị pt)
 
-        // --- DỮ LIỆU MẪU (TÓM TẮT KIẾN THỨC) ---
+        // --- CẬP NHẬT FONT VÀ SIZE CHỮ ---
+        function applyFontSettings() {
+            const fontVal = document.getElementById('font-select').value;
+            document.documentElement.style.setProperty('--print-font-family', fontVal);
+        }
+
+        function changeBaseFontSize(delta) {
+            currentBaseFontSize += delta;
+            // Giới hạn size từ 6pt (siêu nhỏ) đến 16pt (siêu lớn)
+            if (currentBaseFontSize < 6) currentBaseFontSize = 6;
+            if (currentBaseFontSize > 16) currentBaseFontSize = 16;
+            
+            document.documentElement.style.setProperty('--print-font-size', currentBaseFontSize + 'pt');
+            document.getElementById('font-size-label').innerText = currentBaseFontSize + 'pt';
+        }
+
+        // --- DỮ LIỆU MẪU ---
         const sampleData = [
-            { "Chủ đề": "1. Đạo hàm cơ bản", "Tên công thức": "Hằng số", "Công thức": "$(c)' = 0$", "Ví dụ": "$(5)' = 0$" },
-            { "Chủ đề": "1. Đạo hàm cơ bản", "Tên công thức": "Lũy thừa", "Công thức": "$(x^n)' = n \\cdot x^{n-1}$", "Ví dụ": "$(x^3)' = 3x^2$" },
-            { "Chủ đề": "1. Đạo hàm cơ bản", "Tên công thức": "Căn bậc hai", "Công thức": "$(\\sqrt{x})' = \\frac{1}{2\\sqrt{x}}$", "Ví dụ": "$(\\sqrt{2x})' = \\frac{1}{\\sqrt{2x}}$" },
-            { "Chủ đề": "1. Đạo hàm cơ bản", "Tên công thức": "Phân thức", "Công thức": "$(\\frac{1}{x})' = -\\frac{1}{x^2}$", "Ví dụ": "$(\\frac{1}{x+1})' = \\frac{-1}{(x+1)^2}$" },
-            
-            { "Chủ đề": "2. Đạo hàm lượng giác", "Tên công thức": "Sin & Cos", "Công thức": "$(\\sin x)' = \\cos x$<br>$(\\cos x)' = -\\sin x$", "Ví dụ": "$(\\sin 2x)' = 2\\cos 2x$" },
-            { "Chủ đề": "2. Đạo hàm lượng giác", "Tên công thức": "Tan & Cot", "Công thức": "$(\\tan x)' = \\frac{1}{\\cos^2 x}$<br>$(\\cot x)' = -\\frac{1}{\\sin^2 x}$", "Ví dụ": "$(\\tan 3x)' = \\frac{3}{\\cos^2 3x}$" },
-
-            { "Chủ đề": "3. Lượng giác cơ bản", "Tên công thức": "Hệ thức cơ bản", "Công thức": "$\\sin^2 x + \\cos^2 x = 1$<br>$\\tan x \\cdot \\cot x = 1$", "Ví dụ": "$\\sin^2 30^\\circ + \\cos^2 30^\\circ = 1$" },
-            { "Chủ đề": "3. Lượng giác cơ bản", "Tên công thức": "Cung liên kết", "Công thức": "Cos đối, sin bù,<br>phụ chéo, khác pi tan", "Ví dụ": "$\\cos(-x) = \\cos x$" },
-            { "Chủ đề": "3. Lượng giác cơ bản", "Tên công thức": "Công thức nhân đôi", "Công thức": "$\\sin 2x = 2\\sin x \\cos x$<br>$\\cos 2x = \\cos^2 x - \\sin^2 x$", "Ví dụ": "$\\sin 60^\\circ = 2\\sin 30^\\circ \\cos 30^\\circ$" },
-
-            { "Chủ đề": "4. Logarit & Mũ", "Tên công thức": "Định nghĩa", "Công thức": "$a^b = c \\Leftrightarrow \\log_a c = b$", "Ví dụ": "$2^3 = 8 \\Leftrightarrow \\log_2 8 = 3$" },
-            { "Chủ đề": "4. Logarit & Mũ", "Tên công thức": "Tổng/Hiệu", "Công thức": "$\\log_a(xy) = \\log_a x + \\log_a y$<br>$\\log_a(\\frac{x}{y}) = \\log_a x - \\log_a y$", "Ví dụ": "$\\log_2(8) = \\log_2(4) + \\log_2(2)$" },
-            
-            { "Chủ đề": "5. Tích phân", "Tên công thức": "Đa thức", "Công thức": "$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$", "Ví dụ": "$\\int x^2 dx = \\frac{x^3}{3} + C$" },
-            { "Chủ đề": "5. Tích phân", "Tên công thức": "Phân số", "Công thức": "$\\int \\frac{1}{x} dx = \\ln|x| + C$", "Ví dụ": "$\\int \\frac{1}{x+2} dx = \\ln|x+2| + C$" }
+            { "Chủ đề": "1. Đạo hàm", "Tên công thức": "Lũy thừa", "Công thức": "$(x^n)' = n \\cdot x^{n-1}$", "Ví dụ": "$(x^3)' = 3x^2$" },
+            { "Chủ đề": "1. Đạo hàm", "Tên công thức": "Căn bậc hai", "Công thức": "$(\\sqrt{x})' = \\frac{1}{2\\sqrt{x}}$", "Ví dụ": "$(\\sqrt{2x})' = \\frac{1}{\\sqrt{2x}}$" },
+            { "Chủ đề": "2. Lượng giác", "Tên công thức": "Sin & Cos", "Công thức": "$(\\sin x)' = \\cos x$<br>$(\\cos x)' = -\\sin x$", "Ví dụ": "$(\\sin 2x)' = 2\\cos 2x$" },
+            { "Chủ đề": "2. Lượng giác", "Tên công thức": "Tan & Cot", "Công thức": "$(\\tan x)' = \\frac{1}{\\cos^2 x}$<br>$(\\cot x)' = -\\frac{1}{\\sin^2 x}$", "Ví dụ": "$(\\tan 3x)' = \\frac{3}{\\cos^2 3x}$" },
+            { "Chủ đề": "3. Logarit & Mũ", "Tên công thức": "Tổng/Hiệu", "Công thức": "$\\log_a(xy) = \\log_a x + \\log_a y$<br>$\\log_a(\\frac{x}{y}) = \\log_a x - \\log_a y$", "Ví dụ": "$\\log_2(8) = \\log_2(4) + \\log_2(2)$" },
+            { "Chủ đề": "4. Tích phân", "Tên công thức": "Đa thức", "Công thức": "$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$", "Ví dụ": "$\\int x^2 dx = \\frac{x^3}{3} + C$" }
         ];
 
-        // --- HÀM ĐỒNG BỘ TIÊU ĐỀ & CHÂN TRANG ---
+        // --- ĐỒNG BỘ TIÊU ĐỀ ---
         function updatePrintInfo() {
-            // Cập nhật Title và Footer
             document.getElementById('display-title').innerText = document.getElementById('input-title').value;
             document.getElementById('display-footer').innerText = document.getElementById('input-footer').value;
 
-            // Cập nhật Tên và Lớp (Nếu trống thì hiện khoảng trắng dài để in ra viết tay)
             let stuName = document.getElementById('input-student').value;
             let stuClass = document.getElementById('input-class').value;
-            
             document.getElementById('display-student').innerHTML = stuName ? `&nbsp;${stuName}` : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
             document.getElementById('display-class').innerHTML = stuClass ? `&nbsp;${stuClass}` : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+            let watermarkText = document.getElementById('input-watermark').value;
+            let watermarkEl = document.getElementById('watermark-display');
+            watermarkEl.innerText = watermarkText;
+            watermarkEl.style.display = watermarkText ? '' : 'none';
         }
 
         function syncInputTitle() {
             document.getElementById('input-title').value = document.getElementById('display-title').innerText;
         }
 
-        // Khởi tạo chạy lần đầu cho khoảng trắng
-        updatePrintInfo();
+        updatePrintInfo(); // Khởi tạo lần đầu
 
-        // --- CÁC HÀM HỖ TRỢ GIAO DIỆN ---
         function getTopicIcon(topic) {
             const t = topic.toLowerCase();
-            // Icon Toán chuẩn
             if (t.includes('đạo hàm')) return '🚀';
             if (t.includes('lượng giác')) return '🎡';
             if (t.includes('tích phân') || t.includes('nguyên hàm')) return '🎢';
             if (t.includes('logarit') || t.includes('mũ')) return '🍄';
             if (t.includes('hàm số')) return '📈';
             if (t.includes('hình')) return '🧊';
-            if (t.includes('phương trình')) return '🧩';
-            if (t.includes('bất đẳng thức')) return '⚖️';
-            if (t.includes('vectơ') || t.includes('vector')) return '🏹';
-            if (t.includes('xác suất') || t.includes('tổ hợp')) return '🎲';
-            if (t.includes('số phức')) return '🌌';
-            
-            // Random Icon dễ thương nếu không trúng từ khóa (tạo mã băm cố định 1 chủ đề = 1 icon)
             const cuteIcons = ['🦄','🌸','🍀','🌟','🍓','🧸','🎈','🌻','🎀','🪄','🐧','🐬','🍩'];
             let hash = 0;
-            for (let i = 0; i < topic.length; i++) {
-                hash = topic.charCodeAt(i) + ((hash << 5) - hash);
-            }
+            for (let i = 0; i < topic.length; i++) hash = topic.charCodeAt(i) + ((hash << 5) - hash);
             return cuteIcons[Math.abs(hash) % cuteIcons.length];
         }
 
@@ -491,150 +501,98 @@ QUY TẮC QUAN TRỌNG:
         ];
 
         function applyTheme() {
-            if (currentLoadedData.length > 0) {
-                renderData(currentLoadedData);
-            }
+            if (currentLoadedData.length > 0) renderData(currentLoadedData);
         }
 
-        // Hàm thay đổi hướng giấy
         function applyOrientation() {
             const mode = document.getElementById('orientation-select').value;
             const styleEl = document.getElementById('dynamic-print-style');
-            
-            // Xóa các class cũ
             document.body.classList.remove('landscape-mode', 'portrait-1-mode');
             
             if (mode === 'landscape') {
                 document.body.classList.add('landscape-mode');
-                styleEl.innerHTML = `
-                    @media print {
-                        @page { size: A4 landscape; margin: 10mm 8mm 12mm 8mm; }
-                        #print-area { column-count: 3 !important; }
-                    }
-                `;
+                styleEl.innerHTML = `@media print { @page { size: A4 landscape; margin: 10mm 6mm 12mm 6mm; } #print-area { column-count: 2 !important; } }`;
             } else if (mode === 'portrait-1') {
                 document.body.classList.add('portrait-1-mode');
-                styleEl.innerHTML = `
-                    @media print {
-                        @page { size: A4 portrait; margin: 12mm 8mm 15mm 8mm; }
-                        #print-area { column-count: 1 !important; }
-                    }
-                `;
+                styleEl.innerHTML = `@media print { @page { size: A4 portrait; margin: 10mm 6mm 12mm 6mm; } #print-area { column-count: 1 !important; } }`;
             } else {
-                styleEl.innerHTML = `
-                    @media print {
-                        @page { size: A4 portrait; margin: 12mm 8mm 15mm 8mm; }
-                        #print-area { column-count: 2 !important; }
-                    }
-                `;
+                styleEl.innerHTML = `@media print { @page { size: A4 portrait; margin: 10mm 6mm 12mm 6mm; } #print-area { column-count: 2 !important; } }`;
             }
+            
+            // Cập nhật lại giao diện bảng ngay khi đổi hướng giấy
+            if (currentLoadedData.length > 0) renderData(currentLoadedData);
         }
-
-        // --- HÀM XỬ LÝ CHÍNH VÀ ZOOM ---
 
         let previewZoom = 1;
-
-        // Hàm điều chỉnh Zoom bản in
         function changeZoom(delta) {
             previewZoom += delta;
-            // Giới hạn zoom từ 50% đến 200%
             if (previewZoom < 0.5) previewZoom = 0.5;
             if (previewZoom > 2) previewZoom = 2;
-            
-            // Cập nhật biến CSS và hiển thị %
             document.documentElement.style.setProperty('--preview-zoom', previewZoom);
             document.getElementById('zoom-text').innerText = Math.round(previewZoom * 100) + '%';
-            
-            // Xử lý bù trừ chiều cao cho wrapper để thanh cuộn không bị lỗi khi phóng to
             const wrapper = document.getElementById('print-area-wrapper');
-            if (previewZoom > 1) {
-                wrapper.style.minHeight = `calc(100vh + ${(previewZoom - 1) * 1000}px)`;
-            } else {
-                wrapper.style.minHeight = '100vh';
-            }
+            wrapper.style.minHeight = previewZoom > 1 ? `calc(100vh + ${(previewZoom - 1) * 1000}px)` : '100vh';
         }
 
-        // Hàm bật/tắt chế độ xem trước
         function togglePreview() {
             document.body.classList.toggle('preview-active');
             const controls = document.getElementById('preview-controls');
-            
             if (document.body.classList.contains('preview-active')) {
                 controls.classList.remove('hidden');
                 controls.classList.add('flex');
-                // Reset zoom về 100% khi bật
-                previewZoom = 1;
-                changeZoom(0); 
-                window.scrollTo(0, 0); // Cuộn lên đầu
+                previewZoom = 1; changeZoom(0); 
+                window.scrollTo(0, 0);
             } else {
                 controls.classList.add('hidden');
                 controls.classList.remove('flex');
             }
         }
 
-        // --- HÀM IN & TẢI TÀI LIỆU PDF ---
         function triggerPrint() {
-            if (!currentLoadedData || currentLoadedData.length === 0) {
-                showMessage("⚠️ Lỗi: Không có dữ liệu để in! Hãy tải dữ liệu mẫu hoặc file Excel của bạn trước.", true);
-                return;
-            }
-
-            // Đợi công thức toán học MathJax chạy xong rồi mới kích hoạt in
+            if (!currentLoadedData.length) return showMessage("⚠️ Không có dữ liệu để in!", true);
             if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-                MathJax.typesetPromise().then(() => { window.print(); }).catch((err) => { window.print(); });
-            } else {
-                window.print();
-            }
+                MathJax.typesetPromise().then(() => window.print()).catch(() => window.print());
+            } else window.print();
         }
 
         function downloadPDF() {
-            if (!currentLoadedData || currentLoadedData.length === 0) {
-                showMessage("⚠️ Lỗi: Không có dữ liệu để tải PDF!", true);
-                return;
-            }
-            // Cập nhật hướng dẫn người dùng cách bật chế độ đánh số trang tự động của trình duyệt
-            alert("💡 Mẹo xuất PDF siêu nét và Đánh số trang tự động:\n\n1. Chọn 'Lưu dưới dạng PDF' (Save as PDF).\n2. Mở 'Cài đặt khác' (More settings) -> Tích chọn 'Tiêu đề và chân trang' (Headers and footers) để hệ thống tự đếm số trang.\n3. Nhớ tích 'Đồ họa nền' (Background graphics) để giữ màu sắc!");
+            if (!currentLoadedData.length) return showMessage("⚠️ Không có dữ liệu để tải PDF!", true);
+            alert("💡 Mẹo xuất PDF:\n1. Chọn 'Lưu dưới dạng PDF'\n2. Bật 'Đồ họa nền' (Background graphics)\n3. Để đánh số trang, bật 'Tiêu đề & chân trang'.");
             triggerPrint();
         }
 
-        // Hàm copy prompt cho AI
-        function copyPrompt() {
-            const promptText = `Tạo bảng tổng hợp công thức Toán về chủ đề: [ĐIỀN CHỦ ĐỀ VÀO ĐÂY].\n\nBảng gồm chính xác 4 cột: "Chủ đề" | "Tên công thức" | "Công thức" | "Ví dụ".\n\nQUY TẮC QUAN TRỌNG:\n1. Cột "Công thức" và "Ví dụ" phải viết bằng cú pháp LaTeX kẹp giữa 2 dấu đô la. Ví dụ: $\\frac{a}{b}$ hoặc $\\sin x$.\n2. Không dùng dấu ngoặc vuông \\\\[ \\\\] hay đô la kép $$.\n3. Nếu cần xuống dòng trong 1 ô, bắt buộc dùng thẻ <br>.\n4. Xuất kết quả dạng bảng Markdown để copy trực tiếp vào Excel.`;
-            
-            const el = document.createElement('textarea');
-            el.value = promptText;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            
-            showMessage("Đã copy Prompt! Hãy dán vào AI nhé.");
-        }
-
         function showMessage(msg, isError = false) {
-            const statusEl = document.getElementById('status-message');
+            let statusEl = document.getElementById('status-message');
+            if (!statusEl) {
+                statusEl = document.createElement('div');
+                statusEl.id = 'status-message';
+                document.body.appendChild(statusEl);
+            }
             statusEl.textContent = msg;
             statusEl.className = `text-center mt-3 text-sm font-medium block ${isError ? 'text-red-500' : 'text-green-500'}`;
-            setTimeout(() => { statusEl.classList.add('hidden'); }, 5000);
+            if (statusEl.timeoutId) clearTimeout(statusEl.timeoutId);
+            statusEl.timeoutId = setTimeout(() => statusEl.classList.add('hidden'), 5000);
         }
 
-        // Parse LaTeX text
         function formatMath(text) {
             if (!text && text !== 0) return "";
-            // Thay thế <br> hoặc \n thành <br>
-            let htmlText = text.toString().replace(/\n/g, '<br>');
-            return htmlText;
+            return text.toString().replace(/\n/g, '<br>');
         }
 
-        // Render dữ liệu ra màn hình
         function renderData(data) {
-            currentLoadedData = data; // Lưu lại để dùng khi đổi theme
+            currentLoadedData = data; 
             const container = document.getElementById('content-container');
-            container.innerHTML = ''; // Xóa cũ
+            container.innerHTML = ''; 
             
             const theme = document.getElementById('theme-select').value;
+            const mode = document.getElementById('orientation-select').value;
+            const isPortraitTwoCol = (mode === 'portrait'); // Chỉ vô hiệu hóa ở chế độ dọc 2 cột siêu khít
+            const isLandscape = (mode === 'landscape');     // Chế độ in ngang
+            
+            let addNoteColumn = document.getElementById('check-add-note') ? document.getElementById('check-add-note').checked : true;
+            // Tự động vô hiệu hóa cột ghi chú nếu ở chế độ dọc 2 cột HOẶC chế độ ngang
+            if (isPortraitTwoCol || isLandscape) addNoteColumn = false; 
 
-            // Nhóm dữ liệu theo "Chủ đề"
             const groupedData = {};
             data.forEach(row => {
                 const topic = row['Chủ đề'] || row['Chu de'] || 'Khác';
@@ -643,180 +601,101 @@ QUY TẮC QUAN TRỌNG:
             });
 
             let topicIndex = 0;
-
-            // Tạo HTML
             for (const [topic, items] of Object.entries(groupedData)) {
                 const groupDiv = document.createElement('div');
-                // Loại bỏ border-none, shadow-none trong lệnh in để giữ nguyên thiết kế (chỉ áp dụng margin)
-                groupDiv.className = 'topic-group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:mb-3';
+                groupDiv.className = 'topic-group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:mb-1';
                 
-                // Xác định màu sắc theo Theme
                 let headerClass = "border-gray-200 print:border-gray-400 ";
                 switch (theme) {
-                    case 'mono':
-                        headerClass += "bg-gray-200 print:bg-gray-200 text-black";
-                        break;
-                    case 'colorful':
+                    case 'mono': headerClass += "bg-gray-200 print:bg-gray-200 text-black"; break;
+                    case 'colorful': 
                         const palette = colorPalettes[topicIndex % colorPalettes.length];
-                        headerClass += `${palette.bg} ${palette.text}`;
-                        break;
-                    case 'pink':
-                        headerClass += "bg-pink-100 print:bg-pink-100 text-pink-800 print:text-pink-900";
-                        break;
-                    case 'yellow':
-                        headerClass += "bg-yellow-100 print:bg-yellow-100 text-yellow-800 print:text-yellow-900";
-                        break;
-                    case 'green':
-                        headerClass += "bg-green-100 print:bg-green-100 text-green-800 print:text-green-900";
-                        break;
-                    case 'purple':
-                        headerClass += "bg-purple-100 print:bg-purple-100 text-purple-800 print:text-purple-900";
-                        break;
-                    case 'indigo':
-                        headerClass += "bg-indigo-100 print:bg-indigo-100 text-indigo-800 print:text-indigo-900";
-                        break;
-                    case 'ocean':
-                        headerClass += "bg-gradient-to-r from-cyan-100 to-blue-200 print:from-cyan-100 print:to-blue-200 text-cyan-900";
-                        break;
-                    case 'sunset':
-                        headerClass += "bg-gradient-to-r from-orange-100 to-rose-200 print:from-orange-100 print:to-rose-200 text-orange-900";
-                        break;
-                    case 'blue':
-                    default:
-                        headerClass += "bg-blue-100 print:bg-blue-100 text-blue-800 print:text-blue-900";
-                        break;
+                        headerClass += `${palette.bg} ${palette.text}`; break;
+                    case 'pink': headerClass += "bg-pink-100 print:bg-pink-100 text-pink-900"; break;
+                    case 'ocean': headerClass += "bg-gradient-to-r from-cyan-100 to-blue-200 text-cyan-900"; break;
+                    default: headerClass += "bg-blue-100 print:bg-blue-100 text-blue-900"; break;
                 }
 
                 let tableRows = '';
-                // Kiểm tra xem bộ dữ liệu của nhóm này có cột "Ví dụ" không
-                const hasExample = items.some(item => item['Ví dụ'] || item['Vi du']);
+                let hasExample = items.some(item => item['Ví dụ'] || item['Vi du']);
+                if (isPortraitTwoCol) hasExample = false; // Tự động bỏ qua cột ví dụ nếu dọc 2 cột
 
-                items.forEach(item => {
+                items.forEach((item, index) => {
                     const name = item['Tên công thức'] || item['Ten cong thuc'] || '';
                     const formula = item['Công thức'] || item['Cong thuc'] || '';
                     const example = item['Ví dụ'] || item['Vi du'] || '';
                     
-                    let exampleColHTML = hasExample 
-                        ? `<td class="p-2 print:p-1.5 text-sm print:text-[10pt] text-gray-800 w-[35%] math-content align-top print:border-gray-400 border-l border-gray-100">${formatMath(example)}</td>` 
-                        : '';
+                    let nameWidth = 'w-[25%]', formulaWidth = 'w-[75%]', exampleWidth = 'w-[35%]', noteWidth = 'w-[25%]';
+                    if (hasExample && addNoteColumn) { nameWidth = 'w-[20%]'; formulaWidth = 'w-[40%]'; exampleWidth = 'w-[25%]'; noteWidth = 'w-[15%]'; } 
+                    else if (hasExample && !addNoteColumn) { nameWidth = 'w-[25%]'; formulaWidth = 'w-[40%]'; exampleWidth = 'w-[35%]'; } 
+                    else if (!hasExample && addNoteColumn) { nameWidth = 'w-[20%]'; formulaWidth = 'w-[60%]'; noteWidth = 'w-[20%]'; }
+                    
+                    let exampleColHTML = hasExample ? `<td class="content-cell text-gray-800 ${exampleWidth} math-content align-top print:border-gray-400 border-l border-gray-100">${formatMath(example)}</td>` : '';
+                    let noteColHTML = addNoteColumn ? `<td class="content-cell align-top print:border-gray-400 border-l border-gray-100 ${noteWidth} relative"><div class="flex flex-col w-full h-full min-h-[20px] pt-3"><div class="border-b border-dashed border-gray-300 w-full mb-3"></div><div class="border-b border-dashed border-gray-300 w-full mb-3"></div></div></td>` : '';
 
                     tableRows += `
                         <tr class="border-b border-gray-100 last:border-0 print:border-gray-400">
-                            <td class="p-2 print:p-1.5 text-sm print:text-[10pt] font-medium text-gray-700 w-[25%] bg-gray-50 print:bg-transparent align-top print:border-gray-400 border-r border-gray-100">
-                                ${name}
-                            </td>
-                            <td class="p-2 print:p-1.5 text-sm print:text-[10pt] text-gray-900 ${hasExample ? 'w-[40%]' : 'w-[75%]'} math-content align-top print:border-gray-400">
-                                ${formatMath(formula)}
-                            </td>
-                            ${exampleColHTML}
+                            <td class="content-cell font-medium text-gray-700 ${nameWidth} bg-gray-50 print:bg-transparent align-top print:border-gray-400 border-r border-gray-100">${name}</td>
+                            <td class="content-cell text-gray-900 ${formulaWidth} math-content align-top print:border-gray-400">${formatMath(formula)}</td>
+                            ${exampleColHTML} ${noteColHTML}
                         </tr>
                     `;
                 });
 
-                const icon = getTopicIcon(topic);
-
                 groupDiv.innerHTML = `
-                    <div class="theme-header ${headerClass} px-3 py-1.5 border-b flex items-center">
-                        <span class="mr-2 text-lg leading-none">${icon}</span>
-                        <h3 class="font-bold text-sm uppercase m-0 leading-tight">${topic}</h3>
+                    <div class="theme-header ${headerClass} px-2 py-1 border-b flex items-center">
+                        <span class="mr-2 text-lg leading-none">${getTopicIcon(topic)}</span>
+                        <h3 class="font-bold uppercase m-0 leading-tight">${topic}</h3>
                     </div>
-                    <table class="data-table w-full">
-                        <tbody>
-                            ${tableRows}
-                        </tbody>
-                    </table>
+                    <table class="data-table w-full"><tbody>${tableRows}</tbody></table>
                 `;
                 container.appendChild(groupDiv);
                 topicIndex++;
             }
 
-            // Gọi MathJax để render toán học (tìm các thẻ $...$ và $$...$$)
             if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-                MathJax.typesetPromise([container]).catch(function (err) {
-                    console.error('Lỗi MathJax:', err.message);
-                });
+                MathJax.typesetPromise([container]).catch(err => console.error(err));
             } else {
-                // Đợi MathJax tải xong nếu nó chưa sẵn sàng
-                window.addEventListener('load', () => {
-                    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-                        MathJax.typesetPromise([container]);
-                    }
-                });
+                window.addEventListener('load', () => { if (typeof MathJax !== 'undefined') MathJax.typesetPromise([container]); });
             }
         }
 
-        // --- CÁC HÀM XỬ LÝ SỰ KIỆN NGUỒN DỮ LIỆU ---
+        function loadSampleData() { renderData(sampleData); showMessage("Đã tải dữ liệu mẫu!"); }
 
-        function loadSampleData() {
-            renderData(sampleData);
-            showMessage("Đã tải dữ liệu mẫu thành công!");
-        }
-
-        // Xử lý Excel upload
         document.getElementById('excel-file').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet);
-                    
-                    if(json.length === 0) {
-                        showMessage("File Excel rỗng hoặc không đúng định dạng", true);
-                        return;
-                    }
-                    renderData(json);
-                    showMessage("Tải file Excel thành công!");
-                } catch (error) {
-                    showMessage("Lỗi khi đọc file Excel.", true);
-                    console.error(error);
-                }
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    if(json.length === 0) return showMessage("File Excel rỗng", true);
+                    renderData(json); showMessage("Tải file Excel thành công!");
+                } catch (error) { showMessage("Lỗi đọc file.", true); }
             };
             reader.readAsArrayBuffer(file);
         });
 
-        // Xử lý link Google Sheets
         function loadFromGoogleSheets() {
             const urlInput = document.getElementById('gsheet-link').value.trim();
-            if (!urlInput) {
-                showMessage("Vui lòng nhập link Google Sheets!", true);
-                return;
-            }
-
-            // Trích xuất ID từ link (ví dụ: https://docs.google.com/spreadsheets/d/1BxiMvs0X_5u.../edit)
+            if (!urlInput) return showMessage("Vui lòng nhập link!", true);
             const idMatch = urlInput.match(/\/d\/([a-zA-Z0-9-_]+)/);
-            if (!idMatch) {
-                showMessage("Link không hợp lệ. Phải chứa ID của Google Sheets.", true);
-                return;
-            }
+            if (!idMatch) return showMessage("Link không hợp lệ.", true);
             
-            const sheetId = idMatch[1];
-            // API xuất dưới dạng CSV
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
-
-            Papa.parse(csvUrl, {
-                download: true,
-                header: true,
+            Papa.parse(`https://docs.google.com/spreadsheets/d/${idMatch[1]}/export?format=csv`, {
+                download: true, header: true,
                 complete: function(results) {
-                    if (results.data && results.data.length > 0 && Object.keys(results.data[0]).length > 1) {
-                        renderData(results.data);
-                        showMessage("Tải dữ liệu từ Google Sheets thành công!");
-                    } else {
-                        showMessage("Không thể đọc dữ liệu. Hãy chắc chắn Sheet đã được cấp quyền chia sẻ 'Bất kỳ ai có liên kết'.", true);
-                    }
+                    if (results.data && results.data.length > 0) { renderData(results.data); showMessage("Tải thành công!"); } 
+                    else showMessage("Không thể đọc dữ liệu.", true);
                 },
-                error: function(err) {
-                    showMessage("Lỗi mạng hoặc Sheet không được chia sẻ công khai.", true);
-                    console.error(err);
-                }
+                error: function(err) { showMessage("Lỗi mạng.", true); }
             });
         }
-
+        
+        // Cài đặt cấu hình mặc định (Font và hướng giấy) lúc đầu
+        applyFontSettings();
     </script>
 </body>
 </html>
