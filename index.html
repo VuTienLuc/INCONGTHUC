@@ -41,11 +41,12 @@
             --print-line-height: 1.15;
         }
 
-        /* --- SỬA LỖI IN BỊ CẮT TRANG (CHỈ CÓ 1 TRANG) --- */
+        /* --- SỬA LỖI IN BỊ CẮT TRANG --- */
         @media print {
             @page {
                 size: A4;
-                margin: 15mm; /* Lề in chuẩn 1.5cm */
+                /* Lề in chuẩn: Trên 1.8cm, Phải 1.5cm, Dưới 2.0cm, Trái 1.5cm */
+                margin: 18mm 15mm 20mm 15mm; 
             }
             
             /* LOẠI BỎ TẤT CẢ FLEXBOX GÂY LỖI CẮT TRANG KHI IN CỦA TRÌNH DUYỆT */
@@ -84,6 +85,10 @@
                 column-gap: 10px;
                 /* BẮT BUỘC: Cho phép cột tràn sang trang tiếp theo */
                 column-fill: auto !important; 
+            }
+
+            #content-container {
+                padding-bottom: 10mm !important; /* Tạo khoảng trống tránh dính vào Footer ở cuối trang */
             }
 
             .topic-group {
@@ -151,6 +156,7 @@
             .theme-header h3, .theme-header span {
                 font-size: calc(var(--print-font-size) * 1.1) !important;
             }
+            
             .print-footer {
                 position: fixed;
                 bottom: 0;
@@ -158,12 +164,14 @@
                 width: 100%;
                 border-top: 1px dashed #9ca3af;
                 padding-top: 4px;
+                padding-bottom: 2px;
                 font-size: calc(var(--print-font-size) * 0.85) !important;
                 color: #4b5563;
                 display: flex !important;
                 justify-content: center; 
-                background: white;
+                background: white !important; /* Tránh đè lên chữ */
                 -webkit-print-color-adjust: exact;
+                z-index: 100;
             }
             
             #watermark-display { display: block; }
@@ -191,11 +199,10 @@
         }
 
         body.preview-active #print-area {
-            /* width và height sẽ được ghi đè tự động bởi JS (Hàm applyOrientation) */
+            /* width và padding sẽ được ghi đè tự động bởi JS (Hàm applyOrientation) */
             margin: 0;
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 16px 32px rgba(0,0,0,0.4); 
-            padding: 15mm; /* Khớp với lề bản in 1.5cm */
             column-gap: 10px;
             position: relative;
             transform: scale(var(--preview-zoom, 1));
@@ -224,7 +231,7 @@
         body.preview-active .print-footer {
             display: flex !important;
             position: absolute;
-            bottom: 10mm; left: 15mm; right: 15mm;
+            /* Bottom và vị trí sẽ được điều chỉnh bởi JS applyOrientation */
             width: auto;
             justify-content: center;
             font-size: calc(var(--print-font-size) * 0.85);
@@ -456,9 +463,13 @@
                             <label for="check-add-note" class="ml-2 text-xs font-semibold text-gray-600">Bật cột có kẻ dòng "Ghi chú" (hoặc chứa mã QR)</label>
                         </div>
                     </div>
-                    <!-- Hướng dẫn bật đánh số trang -->
-                    <div class="mt-4 text-xs text-blue-700 bg-blue-100 p-2.5 rounded-lg border border-blue-200 leading-relaxed shadow-inner">
-                        💡 <b>Mẹo đánh số trang tự động:</b> Trình duyệt không cho phép code tự tính toán trang. Để hiện số trang tự động <i>(vd: Trang 1, 2...)</i> ở góc giấy, khi cửa sổ in hiện ra, bạn hãy mở phần <b>"Cài đặt khác" (More settings)</b> và tích chọn <b>"Tiêu đề và chân trang" (Headers and footers)</b>.
+                    
+                    <!-- Hướng dẫn in CỰC KỲ QUAN TRỌNG giúp tránh mất lề -->
+                    <div class="mt-4 text-[13px] text-blue-800 bg-blue-50 p-3 rounded-lg border border-blue-200 leading-relaxed shadow-inner">
+                        <span class="font-bold text-red-600 text-sm">🚨 QUAN TRỌNG ĐỂ IN KHÔNG BỊ MẤT LỀ:</span><br>
+                        1. <b>Lề (Margins):</b> Ở cửa sổ in của trình duyệt, BẮT BUỘC chọn <b>Mặc định (Default)</b>. <span class="text-red-500 font-medium">Tuyệt đối không chọn "None" (Không có)</span> vì sẽ làm chữ dính sát mép giấy rất mất thẩm mỹ!<br>
+                        2. <b>Đồ họa nền (Background graphics):</b> Tích chọn để thấy màu sắc của các khối kiến thức.<br>
+                        3. <b>Số trang:</b> Tích chọn <b>Tiêu đề và chân trang (Headers and footers)</b> để tự động đánh số trang ở góc tờ giấy.
                     </div>
                 </div>
             </div>
@@ -616,7 +627,7 @@
             if (currentLoadedData.length > 0) renderData(currentLoadedData);
         }
 
-        // --- ĐỒNG BỘ HIỂN THỊ CỘT & HƯỚNG GIẤY ---
+        // --- ĐỒNG BỘ HIỂN THỊ CỘT & HƯỚNG GIẤY CHUẨN MỰC ---
         function applyOrientation() {
             const mode = document.getElementById('orientation-select').value;
             const styleEl = document.getElementById('dynamic-print-style');
@@ -625,23 +636,27 @@
             document.body.classList.remove('landscape-mode', 'portrait-1-mode');
             
             let printCss = '';
+            // CSS áp dụng margin cứng (18mm 15mm 20mm 15mm) cho thẻ page và căn chỉnh padding chuẩn trên preview
             if (mode === 'landscape') {
                 document.body.classList.add('landscape-mode');
                 // Ép cột cho cả bản in và màn hình xem trước
                 printCss = `
-                    @media print { @page { size: A4 landscape; margin: 15mm; } #print-area { column-count: 2 !important; } }
-                    body.preview-active #print-area { width: 297mm !important; min-height: 210mm !important; column-count: 2 !important; }
+                    @media print { @page { size: A4 landscape; margin: 18mm 15mm 20mm 15mm; } #print-area { column-count: 2 !important; } }
+                    body.preview-active #print-area { width: 297mm !important; min-height: 210mm !important; column-count: 2 !important; padding: 18mm 15mm 20mm 15mm !important; }
+                    body.preview-active .print-footer { bottom: 10mm; left: 15mm; right: 15mm; }
                 `;
             } else if (mode === 'portrait-1') {
                 document.body.classList.add('portrait-1-mode');
                 printCss = `
-                    @media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 1 !important; } }
-                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 1 !important; }
+                    @media print { @page { size: A4 portrait; margin: 18mm 15mm 20mm 15mm; } #print-area { column-count: 1 !important; } }
+                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 1 !important; padding: 18mm 15mm 20mm 15mm !important; }
+                    body.preview-active .print-footer { bottom: 10mm; left: 15mm; right: 15mm; }
                 `;
             } else {
                 printCss = `
-                    @media print { @page { size: A4 portrait; margin: 15mm; } #print-area { column-count: 2 !important; } }
-                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 2 !important; }
+                    @media print { @page { size: A4 portrait; margin: 18mm 15mm 20mm 15mm; } #print-area { column-count: 2 !important; } }
+                    body.preview-active #print-area { width: 210mm !important; min-height: 297mm !important; column-count: 2 !important; padding: 18mm 15mm 20mm 15mm !important; }
+                    body.preview-active .print-footer { bottom: 10mm; left: 15mm; right: 15mm; }
                 `;
             }
             
@@ -685,7 +700,7 @@
 
         function downloadPDF() {
             if (!currentLoadedData.length) return showMessage("⚠️ Không có dữ liệu để tải PDF!", true);
-            alert("💡 Mẹo xuất PDF:\n1. Chọn 'Lưu dưới dạng PDF'\n2. Bật 'Đồ họa nền' (Background graphics)\n3. Để đánh số trang, bật 'Tiêu đề & chân trang'.");
+            alert("💡 MẸO IN PDF KHÔNG BỊ CẮT LỀ:\n1. Bắt buộc để 'Lề (Margins)' là 'Mặc định (Default)'. Không được chọn None.\n2. Bật 'Đồ họa nền' (Background graphics)\n3. Để đánh số trang, bật 'Tiêu đề & chân trang'.");
             triggerPrint();
         }
 
